@@ -22,7 +22,7 @@ jobs:
   engine:
     runs-on: ubuntu-latest
     steps:
-      - uses: .github/actions/experimental-setup-dagger
+      - uses: ./.github/actions/experimental-setup-dagger
       - run: dagger do --debug --config ./ci ci sdk go lint
         env:
           _EXPERIMENTAL_DAGGER_JOURNAL: "/tmp/journal.log"
