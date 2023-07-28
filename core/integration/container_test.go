@@ -3279,9 +3279,9 @@ func TestContainerInsecureRootCapabilitesWithService(t *testing.T) {
 			"--tls=false",
 		}, dagger.ContainerWithExecOpts{
 			InsecureRootCapabilities: true,
-		})
+		}).Service()
 
-	dockerHost, err := dockerd.Endpoint(ctx, dagger.ContainerEndpointOpts{
+	dockerHost, err := dockerd.Endpoint(ctx, dagger.ServiceEndpointOpts{
 		Scheme: "tcp",
 	})
 	require.NoError(t, err)
@@ -4011,9 +4011,10 @@ func TestContainerImageLoadCompatibility(t *testing.T) {
 				"--tls=false",
 			}, dagger.ContainerWithExecOpts{
 				InsecureRootCapabilities: true,
-			})
+			}).
+			Service()
 
-		dockerHost, err := dockerd.Endpoint(ctx, dagger.ContainerEndpointOpts{
+		dockerHost, err := dockerd.Endpoint(ctx, dagger.ServiceEndpointOpts{
 			Scheme: "tcp",
 		})
 		require.NoError(t, err)
