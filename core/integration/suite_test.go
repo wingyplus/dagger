@@ -393,6 +393,7 @@ func goCache(c *dagger.Client) dagger.WithContainerFunc {
 type tWriter struct {
 	t   *testing.T
 	buf bytes.Buffer
+	mu  sync.Mutex
 }
 
 // newTWriter creates a new TWriter
@@ -402,6 +403,9 @@ func newTWriter(t *testing.T) *tWriter {
 
 // Write writes data to the testing.T
 func (tw *tWriter) Write(p []byte) (n int, err error) {
+	tw.mu.Lock()
+	defer tw.mu.Unlock()
+
 	tw.t.Helper()
 
 	if n, err = tw.buf.Write(p); err != nil {
@@ -425,6 +429,8 @@ func (tw *tWriter) Write(p []byte) (n int, err error) {
 }
 
 func (tw *tWriter) Flush() {
+	tw.mu.Lock()
+	defer tw.mu.Unlock()
 	tw.t.Log(tw.buf.String())
 }
 
