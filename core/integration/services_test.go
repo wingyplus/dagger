@@ -161,54 +161,48 @@ func TestServiceHostnameEndpoint(t *testing.T) {
 	})
 }
 
-func TestServicePortsEndpoints(t *testing.T) {
+func TestServicePorts(t *testing.T) {
 	t.Parallel()
 
 	c, ctx := connect(t)
 	defer c.Close()
 
-	t.Run("ports and endpoints are returned in consistent order", func(t *testing.T) {
-		srv := c.Container().
-			From("python").
-			WithExposedPort(8000).
-			WithExposedPort(9000).
-			WithExec([]string{"python", "-m", "http.server"}).
-			Service()
+	srv := c.Container().
+		From("python").
+		WithExposedPort(8000, dagger.ContainerWithExposedPortOpts{
+			Description: "eight thousand",
+		}).
+		WithExposedPort(9000, dagger.ContainerWithExposedPortOpts{
+			Description: "nine thousand",
+			Protocol:    dagger.Udp,
+		}).
+		WithExec([]string{"python", "-m", "http.server"}).
+		Service()
 
-		ports, err := srv.Ports(ctx)
-		require.NoError(t, err)
-		require.Len(t, ports, 2)
-		require.Equal(t, ports[0].Port, 8000)
-		require.Equal(t, ports[1].Port, 9000)
+	portCfgs, err := srv.Ports(ctx)
+	require.NoError(t, err)
 
-		hn, err := srv.Hostname(ctx)
-		require.NoError(t, err)
-
-		eps, err := srv.Endpoints(ctx)
-		require.NoError(t, err)
-		require.Len(t, eps, 2)
-		require.Equal(t, eps[0], hn+":8000")
-		require.Equal(t, eps[1], hn+":9000")
-	})
-
-	t.Run("can specify scheme for endpoints", func(t *testing.T) {
-		srv := c.Container().
-			From("python").
-			WithExposedPort(8000).
-			WithExposedPort(9000).
-			WithExec([]string{"python", "-m", "http.server"}).
-			Service()
-
-		hn, err := srv.Hostname(ctx)
+	for i, cfg := range portCfgs {
+		port, err := cfg.Port(ctx)
 		require.NoError(t, err)
 
-		eps, err := srv.Endpoints(ctx, dagger.ServiceEndpointsOpts{
-			Scheme: "http",
-		})
+		desc, err := cfg.Description(ctx)
 		require.NoError(t, err)
-		require.Equal(t, eps[0], "http://"+hn+":8000")
-		require.Equal(t, eps[1], "http://"+hn+":9000")
-	})
+
+		proto, err := cfg.Protocol(ctx)
+		require.NoError(t, err)
+
+		switch i {
+		case 0:
+			require.Equal(t, 8000, port)
+			require.Equal(t, "eight thousand", desc)
+			require.Equal(t, dagger.Tcp, proto)
+		case 1:
+			require.Equal(t, 9000, port)
+			require.Equal(t, "nine thousand", desc)
+			require.Equal(t, dagger.Udp, proto)
+		}
+	}
 }
 
 func TestContainerPortLifecycle(t *testing.T) {
@@ -1355,13 +1349,17 @@ func TestServiceHostToContainer(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		endpoints, err := tunnel.Endpoints(ctx, dagger.ServiceEndpointsOpts{
-			Scheme: "http",
-		})
+		hn, err := tunnel.Hostname(ctx)
 		require.NoError(t, err)
 
-		for i, endpoint := range endpoints {
-			res, err := http.Get(endpoint)
+		ports, err := tunnel.Ports(ctx)
+		require.NoError(t, err)
+
+		for i, port := range ports {
+			port, err := port.Port(ctx)
+			require.NoError(t, err)
+
+			res, err := http.Get(fmt.Sprintf("http://%s:%d", hn, port))
 			require.NoError(t, err)
 			defer res.Body.Close()
 
@@ -1400,14 +1398,19 @@ func TestServiceHostToContainer(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		endpoints, err := tunnel.Endpoints(ctx, dagger.ServiceEndpointsOpts{
-			Scheme: "http",
-		})
+		portCfgs, err := tunnel.Ports(ctx)
 		require.NoError(t, err)
-		require.Equal(t, []string{"http://127.0.0.1:32767", "http://127.0.0.1:32766"}, endpoints)
 
-		for i, endpoint := range endpoints {
-			res, err := http.Get(endpoint)
+		ports := make([]int, len(portCfgs))
+		for i, cfg := range portCfgs {
+			port, err := cfg.Port(ctx)
+			require.NoError(t, err)
+			ports[i] = port
+		}
+		require.Equal(t, []int{32767, 32766}, ports)
+
+		for i, port := range ports {
+			res, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d", port))
 			require.NoError(t, err)
 			defer res.Body.Close()
 
@@ -1448,15 +1451,19 @@ func TestServiceHostToContainer(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		endpoints, err := tunnel.Endpoints(ctx, dagger.ServiceEndpointsOpts{
-			Scheme: "http",
-		})
+		portCfgs, err := tunnel.Ports(ctx)
 		require.NoError(t, err)
-		require.Len(t, endpoints, 2)
-		require.Equal(t, []string{"http://127.0.0.1:32765", "http://127.0.0.1:32764"}, endpoints)
 
-		for i, endpoint := range endpoints {
-			res, err := http.Get(endpoint)
+		ports := make([]int, len(portCfgs))
+		for i, cfg := range portCfgs {
+			port, err := cfg.Port(ctx)
+			require.NoError(t, err)
+			ports[i] = port
+		}
+		require.Equal(t, []int{32765, 32764}, ports)
+
+		for i, port := range ports {
+			res, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d", port))
 			require.NoError(t, err)
 			defer res.Body.Close()
 
@@ -1490,12 +1497,12 @@ func TestServiceContainerToHost(t *testing.T) {
 	t.Parallel()
 
 	c, ctx := connect(t)
-	defer c.Close()
+	t.Cleanup(func() { _ = c.Close() })
 
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
-	defer l.Close()
+	t.Cleanup(func() { _ = l.Close() })
 
 	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, r.URL.Query().Get("content"))
@@ -1507,6 +1514,8 @@ func TestServiceContainerToHost(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("simple", func(t *testing.T) {
+		t.Parallel()
+
 		host := c.Host().Service([]dagger.PortForward{
 			{Frontend: 80, Backend: port},
 		})
@@ -1522,7 +1531,49 @@ func TestServiceContainerToHost(t *testing.T) {
 		}
 	})
 
+	t.Run("using hostname", func(t *testing.T) {
+		t.Parallel()
+
+		host := c.Host().Service([]dagger.PortForward{
+			{Frontend: 80, Backend: port},
+		})
+
+		hn, err := host.Hostname(ctx)
+		require.NoError(t, err)
+
+		out, err := c.Container().
+			From(alpineImage).
+			WithServiceBinding("www", host).
+			WithExec([]string{"wget", "-O-", "http://" + hn + "/?content=hello"}).
+			Stdout(ctx)
+		require.NoError(t, err)
+		require.Equal(t, "hello\n", out)
+	})
+
+	t.Run("using endpoint", func(t *testing.T) {
+		t.Parallel()
+
+		host := c.Host().Service([]dagger.PortForward{
+			{Frontend: 80, Backend: port},
+		})
+
+		svcURL, err := host.Endpoint(ctx, dagger.ServiceEndpointOpts{
+			Scheme: "http",
+		})
+		require.NoError(t, err)
+
+		out, err := c.Container().
+			From(alpineImage).
+			WithServiceBinding("www", host).
+			WithExec([]string{"wget", "-O-", svcURL + "/?content=hello"}).
+			Stdout(ctx)
+		require.NoError(t, err)
+		require.Equal(t, "hello\n", out)
+	})
+
 	t.Run("multiple ports", func(t *testing.T) {
+		t.Parallel()
+
 		l2, err := net.Listen("tcp", "127.0.0.1:0")
 		require.NoError(t, err)
 
@@ -1548,7 +1599,7 @@ func TestServiceContainerToHost(t *testing.T) {
 			WithExec([]string{"sh", "-c", `
 				a=$(wget -O- http://www/?content=hey)
 				b=$(wget -O- http://www:8000/?content=hey)
-				echo $a $b
+				echo -n $a $b
 			`}).
 			Stdout(ctx)
 		require.NoError(t, err)
@@ -1556,6 +1607,8 @@ func TestServiceContainerToHost(t *testing.T) {
 	})
 
 	t.Run("no ports given", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := c.Host().Service(nil).ID(ctx)
 		require.Error(t, err)
 	})
