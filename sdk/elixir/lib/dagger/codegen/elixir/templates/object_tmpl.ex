@@ -13,7 +13,8 @@ defmodule Dagger.Codegen.Elixir.Templates.Object do
     "ProjectCommandID",
     "ProjectID",
     "SecretID",
-    "SocketID"
+    "SocketID",
+    "ServiceID"
   ]
 
   def render(full_type, types) do
@@ -164,7 +165,7 @@ defmodule Dagger.Codegen.Elixir.Templates.Object do
          type_ref,
          _types
        )
-       when field_name in ["file", "secret"] do
+       when field_name in ["file", "secret", "service"] do
     name =
       case type_ref do
         %{"kind" => "OBJECT", "name" => name} ->
@@ -441,7 +442,7 @@ defmodule Dagger.Codegen.Elixir.Templates.Object do
           |> Type.render_result_type()
       end
 
-    {[quote(do: t()) | render_arg_types(field["args"], name not in ["file", "secret"])],
+    {[quote(do: t()) | render_arg_types(field["args"], name not in ["file", "secret", "service"])],
      return_type}
   end
 
