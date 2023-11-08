@@ -1,10 +1,11 @@
 {application, dagger_core, [
-    {description, "An OTP library"},
-    {vsn, "0.1.0"},
+    {description, "Low-level Dagger library."},
+    {vsn, "0.0.0"},
     {registered, []},
     {applications, [
         kernel,
-        stdlib
+        stdlib,
+        inets
     ]},
     {env, []},
     {modules, []},
