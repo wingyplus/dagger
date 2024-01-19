@@ -10,10 +10,10 @@ request(Client, Url, SessionToken, Query, Variables, Options) ->
     case Client:request(Url, SessionToken, thoas:encode(Request), [{timeout, infinity}]) of
         {ok, 200, Result} ->
             Json:decode(Result);
-	% Non-200 error.
-	{ok, _, Error} ->
-	    {ok, Result} = Json:decode(Error),
-	    {error, Result};
+        % Non-200 error.
+        {ok, _, Error} ->
+            {ok, Result} = Json:decode(Error),
+            {error, Result};
         Otherwise ->
             Otherwise
     end.
