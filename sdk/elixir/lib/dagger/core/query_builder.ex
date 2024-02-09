@@ -101,6 +101,7 @@ defmodule Dagger.Core.QueryBuilder do
   alias Dagger.Core.QueryBuilder.Selection
   alias Dagger.Core.Client
 
+  # TODO: deprecated me.
   def execute(selection, client) do
     q = Selection.build(selection)
 
@@ -116,6 +117,7 @@ defmodule Dagger.Core.QueryBuilder do
     end
   end
 
+  # TODO: deprecated me.
   defp select_data(data, [sub_selection | path]) do
     case sub_selection |> String.split() do
       [selection] ->
@@ -128,6 +130,100 @@ defmodule Dagger.Core.QueryBuilder do
         end
     end
   end
+
+  def select(query, name)
+      when is_list(query) and is_binary(name) do
+    [field(name) | query]
+  end
+
+  def select(query, name, args)
+      when is_list(query) and is_binary(name) and is_list(args) do
+    [field(name, args) | query]
+  end
+
+  def select_many(query, fields) when is_list(query) and is_list(fields) do
+    [Enum.map(fields, &field/1) | query]
+  end
+
+  defp field(field) when is_tuple(field), do: field
+  defp field(name) when is_binary(name), do: {name, []}
+  defp field(name, args) when is_binary(name) and is_list(args), do: {name, args}
+
+  def path([]), do: []
+
+  def path([{name, _} | parent]) do
+    path(parent) ++ [name]
+  end
+
+  def path([child | parent]) when is_list(child) do
+    path(parent)
+  end
+
+  def build(query) do
+    ["query", ?{, build(query, []), ?}]
+  end
+
+  defp build([], query) do
+    query
+  end
+
+  defp build([child | parent], []) when is_list(child) do
+    build(
+      parent,
+      Enum.map_intersperse(child, " ", &build([&1], []))
+    )
+  end
+
+  defp build([{name, []} | parent], query) do
+    build(parent, [name, wrap_around(query)])
+  end
+
+  defp build([{name, args} | parent], query) do
+    build(
+      parent,
+      [name, ?(, Enum.map_intersperse(args, ",", &build_arg/1), ?), wrap_around(query)]
+    )
+  end
+
+  defp wrap_around([]), do: []
+  defp wrap_around(query), do: [?{, query, ?}]
+
+  defp build_arg({key, value}) do
+    [to_string(key), ?:, encode_value(value)]
+  end
+
+  defp encode_value(bool) when is_boolean(bool) do
+    to_string(bool)
+  end
+
+  defp encode_value(string) when is_binary(string) or is_atom(string) do
+    string =
+      string
+      |> to_string()
+      |> String.replace("\n", "\\n")
+      |> String.replace("\t", "\\t")
+      |> String.replace("\"", "\\\"")
+
+    [?", string, ?"]
+  end
+
+  defp encode_value(struct) when is_struct(struct) do
+    struct
+    |> Map.from_struct()
+    |> encode_value()
+  end
+
+  defp encode_value(map) when is_map(map) do
+    fun = fn {k, v} -> [to_string(k), ?:, encode_value(v)] end
+    [?{, Enum.map_intersperse(map, ",", fun), ?}]
+  end
+
+  defp encode_value(list) when is_list(list) do
+    fun = fn v -> encode_value(v) end
+    [?[, Enum.map_intersperse(list, ",", fun), ?]]
+  end
+
+  defp encode_value(otherwise), do: to_string(otherwise)
 
   defmacro __using__(_opts) do
     quote do
