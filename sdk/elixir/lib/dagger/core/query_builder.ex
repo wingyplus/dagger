@@ -116,7 +116,7 @@ defmodule Dagger.Core.QueryBuilder do
     q = Selection.build(selection)
 
     case Client.query(client, q) do
-      {:ok, %{status: 200, body: %{"data" => nil, "errors" => errors}}} ->
+      {:ok, %{body: %{"data" => nil, "errors" => errors}}} ->
         {:error, %Dagger.QueryError{errors: errors}}
 
       {:ok, %{status: 200, body: %{"data" => data}}} ->
