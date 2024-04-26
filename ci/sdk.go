@@ -16,6 +16,7 @@ type SDK struct {
 	Rust   *RustSDK
 	Java   *JavaSDK
 	PHP    *PHPSDK
+	Dotnet *DotNetSDK
 }
 
 func (ci *Dagger) installer(ctx context.Context, name string) (func(*Container) *Container, error) {

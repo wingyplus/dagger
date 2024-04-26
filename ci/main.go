@@ -72,6 +72,7 @@ func (ci *Dagger) SDK() *SDK {
 		Elixir:     &ElixirSDK{Dagger: ci},
 		PHP:        &PHPSDK{Dagger: ci},
 		Java:       &JavaSDK{Dagger: ci},
+		Dotnet:     &DotNetSDK{Dagger: ci},
 	}
 }
 
