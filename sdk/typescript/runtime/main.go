@@ -33,6 +33,12 @@ func New(
 	// +optional
 	sdkSourceDir *Directory,
 ) *TypescriptSdk {
+	if sdkSourceDir == nil {
+		sdkSourceDir = dag.Git("https://github.com/dagger/dagger.git").
+			Branch("main").
+			Tree().
+			Directory("sdk/typescript/runtime")
+	}
 	return &TypescriptSdk{
 		SDKSourceDir: sdkSourceDir,
 		RequiredPaths: []string{
