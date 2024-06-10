@@ -905,8 +905,12 @@ func (s *moduleSchema) updateCodegenAndRuntime(
 			if bytes.Contains(gitIgnoreContents, []byte(fileName)) {
 				continue
 			}
+			path := fileName
+			if path[0] != '/' {
+				path = "/" + path
+			}
 			gitIgnoreContents = append(gitIgnoreContents,
-				[]byte(fmt.Sprintf("/%s\n", fileName))...,
+				[]byte(fmt.Sprintf("%s\n", path))...,
 			)
 		}
 
