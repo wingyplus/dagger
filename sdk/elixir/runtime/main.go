@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"dagger/runtime/internal/dagger"
 	"path"
 
 	"github.com/iancoleman/strcase"
@@ -17,10 +18,10 @@ const (
 
 func New(
 	// +optional
-	sdkSourceDir *Directory,
+	sdkSourceDir *dagger.Directory,
 ) *ElixirSdk {
 	if sdkSourceDir == nil {
-		sdkSourceDir = dag.CurrentModule().Source()
+		sdkSourceDir = dag.CurrentModule().Source().Directory("..")
 	}
 	return &ElixirSdk{
 		SDKSourceDir:  sdkSourceDir,
@@ -30,19 +31,19 @@ func New(
 }
 
 type ElixirSdk struct {
-	SDKSourceDir  *Directory
+	SDKSourceDir  *dagger.Directory
 	RequiredPaths []string
 
-	Container *Container
+	Container *dagger.Container
 	// An error during processing.
 	err error
 }
 
 func (m *ElixirSdk) ModuleRuntime(
 	ctx context.Context,
-	modSource *ModuleSource,
-	introspectionJson *File,
-) (*Container, error) {
+	modSource *dagger.ModuleSource,
+	introspectionJson *dagger.File,
+) (*dagger.Container, error) {
 	modName, err := modSource.ModuleName(ctx)
 	if err != nil {
 		return nil, err
@@ -67,9 +68,9 @@ func (m *ElixirSdk) ModuleRuntime(
 
 func (m *ElixirSdk) Codegen(
 	ctx context.Context,
-	modSource *ModuleSource,
-	introspectionJson *File,
-) (*GeneratedCode, error) {
+	modSource *dagger.ModuleSource,
+	introspectionJson *dagger.File,
+) (*dagger.GeneratedCode, error) {
 	ctr, err := m.Common(ctx, modSource, introspectionJson)
 	if err != nil {
 		return nil, err
@@ -81,9 +82,9 @@ func (m *ElixirSdk) Codegen(
 }
 
 func (m *ElixirSdk) Common(ctx context.Context,
-	modSource *ModuleSource,
-	introspectionJson *File,
-) (*Container, error) {
+	modSource *dagger.ModuleSource,
+	introspectionJson *dagger.File,
+) (*dagger.Container, error) {
 	modName, err := modSource.ModuleName(ctx)
 	if err != nil {
 		return nil, err
@@ -101,7 +102,7 @@ func (m *ElixirSdk) Common(ctx context.Context,
 	return m.Container, nil
 }
 
-func (m *ElixirSdk) Base(modSource *ModuleSource, subPath string) *ElixirSdk {
+func (m *ElixirSdk) Base(modSource *dagger.ModuleSource, subPath string) *ElixirSdk {
 	m.Container = m.baseContainer(m.Container).
 		WithMountedDirectory(sdkSrc, m.SDKSourceDir).
 		WithMountedDirectory(ModSourceDirPath, modSource.ContextDirectory()).
@@ -133,18 +134,18 @@ func (m *ElixirSdk) WithNewElixirPackage(ctx context.Context, modName string) *E
 			WithExec([]string{"mix", "new", "--sup", modName}).
 			WithExec([]string{"mkdir", "-p", modName + "/lib/mix/tasks"}).
 			// TODO: moved it to WithSource.
-			WithExec([]string{"elixir", "/sdk/template.exs", "generate", modName})
+			WithExec([]string{"elixir", "/sdk/runtime/template.exs", "generate", modName})
 	}
 	return m
 }
 
 // Generate the SDK into the container.
-func (m *ElixirSdk) WithSDK(introspectionJson *File) *ElixirSdk {
+func (m *ElixirSdk) WithSDK(introspectionJson *dagger.File) *ElixirSdk {
 	if m.err != nil {
 		return m
 	}
 	m.Container = m.Container.
-		WithDirectory(genDir, m.SDKSourceDir, ContainerWithDirectoryOpts{
+		WithDirectory(genDir, m.SDKSourceDir, dagger.ContainerWithDirectoryOpts{
 			// Excludes all unnecessary files from official SDK.
 			Exclude: []string{
 				"dagger_codegen",
@@ -157,7 +158,7 @@ func (m *ElixirSdk) WithSDK(introspectionJson *File) *ElixirSdk {
 	return m
 }
 
-func (m *ElixirSdk) WithDaggerCodegen() *Container {
+func (m *ElixirSdk) WithDaggerCodegen() *dagger.Container {
 	codegenPath := path.Join(sdkSrc, "dagger_codegen")
 	codegenDepsCache, codegenBuildCache := mixProjectCaches("dagger-codegen")
 	return m.baseContainer(dag.Container()).
@@ -165,11 +166,12 @@ func (m *ElixirSdk) WithDaggerCodegen() *Container {
 		WithMountedCache(path.Join(codegenPath, "deps"), codegenDepsCache).
 		WithMountedCache(path.Join(codegenPath, "_build"), codegenBuildCache).
 		WithWorkdir(codegenPath).
+		Terminal().
 		WithExec([]string{"mix", "deps.get"}).
 		WithExec([]string{"mix", "escript.install", "--force"})
 }
 
-func (m *ElixirSdk) GenerateCode(introspectionJson *File) *Directory {
+func (m *ElixirSdk) GenerateCode(introspectionJson *dagger.File) *dagger.Directory {
 	return m.WithDaggerCodegen().
 		WithMountedFile(schemaPath, introspectionJson).
 		WithExec([]string{
@@ -180,7 +182,7 @@ func (m *ElixirSdk) GenerateCode(introspectionJson *File) *Directory {
 		Directory("/gen")
 }
 
-func (m *ElixirSdk) baseContainer(ctr *Container) *Container {
+func (m *ElixirSdk) baseContainer(ctr *dagger.Container) *dagger.Container {
 	mixCache := dag.CacheVolume(".mix")
 	return ctr.
 		From(elixirImage).
@@ -189,12 +191,12 @@ func (m *ElixirSdk) baseContainer(ctr *Container) *Container {
 		WithExec([]string{"apt", "install", "-y", "--no-install-recommends", "git"}).
 		WithExec([]string{"mix", "local.hex", "--force"}).
 		WithExec([]string{"mix", "local.rebar", "--force"}).
-		WithEnvVariable("PATH", "/root/.mix/escripts:$PATH", ContainerWithEnvVariableOpts{
+		WithEnvVariable("PATH", "/root/.mix/escripts:$PATH", dagger.ContainerWithEnvVariableOpts{
 			Expand: true,
 		})
 }
 
-func mixProjectCaches(prefix string) (depsCache *CacheVolume, buildCache *CacheVolume) {
+func mixProjectCaches(prefix string) (depsCache *dagger.CacheVolume, buildCache *dagger.CacheVolume) {
 	return dag.CacheVolume(prefix + "-deps"), dag.CacheVolume(prefix + "-build")
 }
 
