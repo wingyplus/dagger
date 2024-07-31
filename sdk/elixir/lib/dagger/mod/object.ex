@@ -84,6 +84,10 @@ defmodule Dagger.Mod.Object do
     type
   end
 
+  defp compile_return_type({:__aliases__, _, type}) when is_atom(type) do
+    type
+  end
+
   defp extract_call({:"::", _, [{name, _, [args]}, return]}) do
     {name, args, return}
   end
