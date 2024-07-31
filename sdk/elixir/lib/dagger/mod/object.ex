@@ -88,7 +88,13 @@ defmodule Dagger.Mod.Object do
     type
   end
 
-  defp extract_call({:"::", _, [{name, _, [args]}, return]}) do
+  defp extract_call({:"::", _, [{name, _, fn_args}, return]}) do
+    args =
+      case fn_args do
+        [] -> []
+        [args] -> args
+      end
+
     {name, args, return}
   end
 

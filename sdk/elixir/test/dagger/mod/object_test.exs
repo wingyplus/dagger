@@ -18,6 +18,18 @@ defmodule Dagger.Mod.ObjectTest do
     defn hello_boolean(ab: :boolean) :: :string do
       "Hello, #{ab}"
     end
+
+    defn empty_args() :: :string do
+      "Empty args"
+    end
+  end
+
+  defmodule UseDag do
+    use Dagger.Mod.Object
+
+    defn calling_dag() :: Dagger.Container do
+      dag
+    end
   end
 
   describe "defn" do
@@ -28,6 +40,7 @@ defmodule Dagger.Mod.ObjectTest do
       assert A.hello(dag, "A") == "Hello, A"
 
       assert A.__info__(:attributes) |> Keyword.fetch!(:functions) == [
+               empty_args: [args: [], return: :string],
                hello_boolean: [args: [ab: [type: :boolean]], return: :string],
                hello_with_lucky_number: [
                  args: [name: [type: :string], lucky_number: [type: :integer]],
@@ -38,5 +51,9 @@ defmodule Dagger.Mod.ObjectTest do
     end
 
     test "define arg as a module"
+
+    test "calling dag variable" do
+      assert UseDag.calling_dag(:dag) == :dag
+    end
   end
 end
