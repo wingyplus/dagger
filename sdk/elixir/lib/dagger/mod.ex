@@ -45,8 +45,8 @@ defmodule Dagger.Mod do
 
     case apply(root_module, fun, [dag | args]) do
       {:error, _} = error -> error
-      {:ok, result} -> encode(result, return_type)
-      result -> encode(result, return_type)
+      {:ok, result} -> encode(result, Module.concat(return_type))
+      result -> encode(result, Module.concat(return_type))
     end
   end
 
