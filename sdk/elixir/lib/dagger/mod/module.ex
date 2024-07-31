@@ -7,12 +7,12 @@ defmodule Dagger.Mod.Module do
   @doc """
   Define a Dagger module.
   """
-  def define(dag, module) when is_struct(dag, Dagger.Client) and is_atom(module) do
-    {:docs_v1, _, :elixir, _, module_doc, _, function_docs} = Code.fetch_docs(module)
+  def define(dag, root_module) when is_struct(dag, Dagger.Client) and is_atom(root_module) do
+    {:docs_v1, _, :elixir, _, module_doc, _, function_docs} = Code.fetch_docs(root_module)
 
     dag
     |> Dagger.Client.module()
-    |> Dagger.Module.with_object(define_object(dag, module, function_docs))
+    |> Dagger.Module.with_object(define_object(dag, root_module, function_docs))
     |> maybe_with_description(module_doc)
   end
 
@@ -20,9 +20,8 @@ defmodule Dagger.Mod.Module do
   Get the name of the given `module`.
   """
   def name_for(module) do
-    module.__info__(:attributes)
-    |> Keyword.fetch!(:name)
-    |> to_string()
+    [name | _] = Module.split(module)
+    name
   end
 
   @doc """
