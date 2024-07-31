@@ -1,120 +1,25 @@
 defmodule Dagger.Mod do
-  @schema [
-            args: [
-              doc: """
-              Arguments of the function.
-
-              Everything declared in this keyword will pass into the second argument
-              of the function as a `map`.
-              """,
-              type: :keyword_list,
-              required: true,
-              keys: [
-                *: [
-                  type: :non_empty_keyword_list,
-                  required: true,
-                  keys: [
-                    type: [
-                      doc: """
-                      Type of the argument.
-
-                      The possible values are:
-
-                      * `:boolean` - A boolean type.
-                      * `:integer` - A integer type.
-                      * `:string` - A string type.
-                      * `{:list, type}` - A list of `type`.
-                      * `module` - An Elixir module.
-                      """,
-                      type:
-                        {:or,
-                         [
-                           :atom,
-                           {:tuple, [:atom, :atom]}
-                         ]},
-                      required: true
-                    ]
-                  ]
-                ]
-              ]
-            ],
-            return: [
-              doc: """
-              Functionre\tbturn type.
-
-              The possible values are:
-
-              * `:boolean` - A boolean type.
-              * `:integer` - A integer type.
-              * `:string` - A string type.
-              * `{:list, type}` - A list of `type`.
-              * `module` - An Elixir module.
-              """,
-              type:
-                {:or,
-                 [
-                   :atom,
-                   {:tuple, [:atom, :atom]}
-                 ]},
-              required: true
-            ]
-          ]
-          |> NimbleOptions.new!()
-
   @moduledoc """
-  A behaviour for implementing Dagger Module.
-
-  ## Function schema
-
-  #{NimbleOptions.docs(@schema)}
+  A set of functions to working with Dagger Module.
   """
-
-  def __on_definition__(env, :def, name, args, _guards, _body) do
-    case Module.get_attribute(env.module, :function) do
-      nil ->
-        :ok
-
-      function ->
-        unless length(args) == 2 do
-          raise """
-          A function must have 2 arguments.
-          """
-        end
-
-        function = NimbleOptions.validate!(function, @schema)
-        functions = Module.get_attribute(env.module, :functions)
-        functions = [{name, function} | functions]
-        Module.put_attribute(env.module, :functions, functions)
-        Module.delete_attribute(env.module, :function)
-    end
-  end
-
-  def __on_definition__(env, :defp, name, _args, _guards, _body) do
-    case Module.get_attribute(env.module, :function) do
-      nil ->
-        :ok
-
-      _ ->
-        raise """
-        Define `@function` on private function (#{name}) is not supported.
-        """
-    end
-  end
-
-  def function_schema(), do: @schema
 
   @doc """
-  Invoke a function.
+  Invoke a function against this `root_module`.
   """
-  def invoke(dag \\ Dagger.connect!()) do
+  def invoke(root_module) do
+    Dagger.with_connection(&invoke(&1, root_module))
+  end
+
+  def invoke(dag, root_module) do
     fn_call = Dagger.Client.current_function_call(dag)
 
     with {:ok, parent_name} <- Dagger.FunctionCall.parent_name(fn_call),
          {:ok, fn_name} <- Dagger.FunctionCall.name(fn_call),
+         # TODO: convert parent json into struct then passing it into `invoke`.
          {:ok, parent_json} <- Dagger.FunctionCall.parent(fn_call),
          {:ok, parent} <- Jason.decode(parent_json),
          {:ok, input_args} <- Dagger.FunctionCall.input_args(fn_call),
-         {:ok, json} <- invoke(dag, parent, parent_name, fn_name, input_args),
+         {:ok, json} <- invoke(root_module, dag, parent, parent_name, fn_name, input_args),
          {:ok, _} <- Dagger.FunctionCall.return_value(fn_call, json) do
       :ok
     else
@@ -122,48 +27,45 @@ defmodule Dagger.Mod do
         IO.puts(inspect(reason))
         System.halt(2)
     end
-  after
-    Dagger.close(dag)
   end
 
-  def invoke(dag, _parent, "", _fn_name, _input_args) do
-    # TODO: Support multiple modules when root module return another module.
-    [module] = Dagger.Mod.Registry.all()
-
+  # Register a module.
+  def invoke(root_module, dag, _parent, "", _fn_name, _input_args) do
     dag
-    |> Dagger.Mod.Module.define(module)
+    |> Dagger.Mod.Module.define(root_module)
     |> encode(Dagger.Module)
   end
 
-  def invoke(dag, _parent, parent_name, fn_name, input_args) do
-    case Dagger.Mod.Registry.get(parent_name) do
-      nil ->
-        {:error,
-         "unknown module #{parent_name}, please make sure the module is created and register to supervision tree in the application."}
+  # Invoke a function in a module.
+  def invoke(root_module, dag, _parent, _parent_name, fn_name, input_args) do
+    fun = fn_name |> Macro.underscore() |> String.to_existing_atom()
+    fun_def = Dagger.Mod.Module.get_function_definition(root_module, fun)
+    args = decode_args!(dag, input_args, Keyword.fetch!(fun_def, :args))
+    return_type = Keyword.fetch!(fun_def, :return)
 
-      module ->
-        fun = fn_name |> Macro.underscore() |> String.to_existing_atom()
-        fun_def = Dagger.Mod.Module.get_function_definition(module, fun)
-        args = decode_args(dag, input_args, Keyword.fetch!(fun_def, :args))
-        return_type = Keyword.fetch!(fun_def, :return)
-
-        case apply(module, fun, [struct(module, dag: dag), args]) do
-          {:error, _} = error -> error
-          {:ok, result} -> encode(result, return_type)
-          result -> encode(result, return_type)
-        end
+    case apply(root_module, fun, [dag | args]) do
+      {:error, _} = error -> error
+      {:ok, result} -> encode(result, return_type)
+      result -> encode(result, return_type)
     end
   end
 
-  def decode_args(dag, input_args, args_def) do
-    Enum.into(input_args, %{}, fn arg ->
-      with {:ok, name} <- Dagger.FunctionCallArgValue.name(arg),
-           name = String.to_existing_atom(name),
-           {:ok, value} <- Dagger.FunctionCallArgValue.value(arg),
-           {:ok, value} <- decode(value, get_in(args_def, [name, :type]), dag) do
-        {name, value}
-      end
-    end)
+  def decode_args!(dag, input_args, args_def) do
+    decoded_input_args =
+      Enum.into(input_args, %{}, fn arg ->
+        with {:ok, name} <- Dagger.FunctionCallArgValue.name(arg),
+             name = String.to_existing_atom(name),
+             {:ok, value} <- Dagger.FunctionCallArgValue.value(arg),
+             {:ok, value} <- decode(value, get_in(args_def, [name, :type]), dag) do
+          {name, value}
+        end
+      end)
+
+    # convert decoded_input_args into positional arguments.
+    for {name, _} <- args_def do
+      # TODO: this need to raise the error?
+      Map.fetch!(decoded_input_args, name)
+    end
   end
 
   def decode(value, type, dag) do
@@ -195,7 +97,7 @@ defmodule Dagger.Mod do
   end
 
   defp cast(value, module, dag) when is_binary(value) and is_atom(module) do
-    # NOTE: It feels like we really need a protocol for the module to 
+    # NOTE: It feels like we really need a protocol for the module to
     # load the data from id.
     ["Dagger", name] = Module.split(module)
     name = Macro.underscore(name)
