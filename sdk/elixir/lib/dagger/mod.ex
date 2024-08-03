@@ -75,9 +75,9 @@ defmodule Dagger.Mod do
         :ok
 
       function ->
-        unless length(args) == 2 do
+        unless length(args) == 1 do
           raise """
-          A function must have 2 arguments.
+          A function must have 1 arguments.
           """
         end
 
@@ -106,23 +106,23 @@ defmodule Dagger.Mod do
   @doc """
   Invoke a function.
   """
-  def invoke(dag \\ Dagger.connect!()) do
-    fn_call = Dagger.Client.current_function_call(dag)
-
-    with {:ok, parent_name} <- Dagger.FunctionCall.parent_name(fn_call),
+  def invoke() do
+    with {:ok, _} <- Dagger.Global.start_link(),
+         dag = Dagger.Global.dag(),
+         fn_call = Dagger.Client.current_function_call(dag),
+         {:ok, parent_name} <- Dagger.FunctionCall.parent_name(fn_call),
          {:ok, fn_name} <- Dagger.FunctionCall.name(fn_call),
          {:ok, parent_json} <- Dagger.FunctionCall.parent(fn_call),
          {:ok, parent} <- Jason.decode(parent_json),
          {:ok, input_args} <- Dagger.FunctionCall.input_args(fn_call),
-         {:ok, json} <- invoke(dag, parent, parent_name, fn_name, input_args) do
-      Dagger.FunctionCall.return_value(fn_call, json)
+         {:ok, json} <- invoke(dag, parent, parent_name, fn_name, input_args),
+         :ok <- Dagger.FunctionCall.return_value(fn_call, json) do
+      Dagger.Global.close()
     else
       {:error, reason} ->
         IO.puts(inspect(reason))
         System.halt(2)
     end
-  after
-    Dagger.close(dag)
   end
 
   def invoke(dag, _parent, "", _fn_name, _input_args) do
@@ -146,7 +146,7 @@ defmodule Dagger.Mod do
         args = decode_args(dag, input_args, Keyword.fetch!(fun_def, :args))
         return_type = Keyword.fetch!(fun_def, :return)
 
-        case apply(module, fun, [struct(module, dag: dag), args]) do
+        case apply(module, fun, [args]) do
           {:error, _} = error -> error
           {:ok, result} -> encode(result, return_type)
           result -> encode(result, return_type)

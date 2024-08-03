@@ -7,50 +7,49 @@ defmodule Dagger.Mod.ObjectTest do
 
       function([name: String.t()], String.t())
 
-      def accept_string(_self, args) do
+      def accept_string(args) do
         "Hello, #{args.name}"
       end
 
       function([name: binary()], binary())
 
-      def accept_string2(_self, args) do
+      def accept_string2(args) do
         "Hello, #{args.name}"
       end
 
       function([name: integer()], binary())
 
-      def accept_integer(_self, args) do
+      def accept_integer(args) do
         "Hello, #{args.name}"
       end
 
       function([name: boolean()], binary())
 
-      def accept_boolean(_self, args) do
+      def accept_boolean(args) do
         "Hello, #{args.name}"
       end
 
       function([], String.t())
 
-      def empty_args(_self, _args) do
+      def empty_args(_args) do
         "Empty args"
       end
 
       function([name: Dagger.Container.t()], Dagger.Container.t())
 
-      def accept_and_return_module(dag, _args) do
-        dag
-        |> Dagger.Client.container()
+      def accept_and_return_module(_args) do
+        nil
       end
 
       function([name: list(String.t())], String.t())
 
-      def accept_list(_self, _args) do
+      def accept_list(_args) do
         "Accept list"
       end
 
       function([name: [String.t()]], String.t())
 
-      def accept_list2(_self, _args) do
+      def accept_list2(_args) do
         "Accept list"
       end
     end
@@ -98,7 +97,7 @@ defmodule Dagger.Mod.ObjectTest do
 
         function([name: non_neg_integer()], String.t())
 
-        def accept_string(_self, args) do
+        def accept_string(args) do
           "Hello, #{args.name}"
         end
       end
@@ -111,7 +110,7 @@ defmodule Dagger.Mod.ObjectTest do
         use Dagger.Mod.Object, name: "RaiseDefp"
 
         function([], String.t())
-        defp hello(_self, _args), do: "It works"
+        defp hello(_args), do: "It works"
 
         def dummy(), do: hello(nil, %{})
       end
@@ -124,7 +123,7 @@ defmodule Dagger.Mod.ObjectTest do
         use Dagger.Mod.Object, name: "RaiseArityError"
 
         function([], String.t())
-        def hello(_self, _args, _opts), do: "It works"
+        def hello(_args, _opts), do: "It works"
       end
     end
   end
@@ -135,7 +134,7 @@ defmodule Dagger.Mod.ObjectTest do
 
       function([name: String.t()], String.t())
 
-      def hello(_self, args) do
+      def hello(args) do
         "Hello, #{args.name}"
       end
     end

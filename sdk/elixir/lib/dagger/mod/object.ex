@@ -20,6 +20,7 @@ defmodule Dagger.Mod.Object do
       use Dagger.Mod, unquote(opts)
 
       import Dagger.Mod.Object, only: [function: 2]
+      import Dagger.Global, only: [dag: 0]
 
       @on_definition Dagger.Mod
       @functions []
