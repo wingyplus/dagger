@@ -26,9 +26,7 @@ defmodule Dagger.Global do
 
   @impl GenServer
   def init([]) do
-    with {:ok, dag} <- Dagger.connect() do
-      {:ok, dag}
-    end
+    Dagger.connect()
   end
 
   @impl GenServer
