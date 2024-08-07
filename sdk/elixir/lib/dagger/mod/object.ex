@@ -3,15 +3,16 @@ defmodule Dagger.Mod.Object do
   A module for declare an object type.
   """
 
-  @doc """
-  Declare a function spec.
-  """
-  defmacro function(args, return) do
-    args = compile_args(args)
-    return = compile_typespec!(return)
+  defmacro defn(call, do: block) do
+    {name, args, return} = extract_call(call |> dbg())
+    has_self? = is_tuple(args)
+    arg_defs = compile_args(args)
+    return_def = compile_typespec!(return)
 
     quote do
-      @function [args: unquote(args), return: unquote(return)]
+      @function {unquote(name),
+                 [self: unquote(has_self?), args: unquote(arg_defs), return: unquote(return_def)]}
+      unquote(Dagger.Mod.Object.Defn.define(name, args, block))
     end
   end
 
@@ -19,14 +20,28 @@ defmodule Dagger.Mod.Object do
     quote do
       use Dagger.Mod, unquote(opts)
 
-      import Dagger.Mod.Object, only: [function: 2]
+      import Dagger.Mod.Object, only: [defn: 2]
       import Dagger.Global, only: [dag: 0]
 
-      @on_definition Dagger.Mod
-      @functions []
-
-      Module.register_attribute(__MODULE__, :functions, persist: true)
+      Module.register_attribute(__MODULE__, :function, accumulate: true, persist: true)
     end
+  end
+
+  defp extract_call({:"::", _, [call_def, return]}) do
+    {name, args} = extract_call_def(call_def)
+    {name, args, return}
+  end
+
+  defp extract_call_def({name, _, [args]}) do
+    {name, args}
+  end
+
+  defp extract_call_def({name, _, [self, args]}) do
+    {name, {self, args}}
+  end
+
+  defp compile_args({_, args}) do
+    compile_args(args)
   end
 
   defp compile_args(args) do

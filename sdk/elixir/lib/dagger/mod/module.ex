@@ -30,7 +30,8 @@ defmodule Dagger.Mod.Module do
   """
   def functions_for(module) do
     module.__info__(:attributes)
-    |> Keyword.fetch!(:functions)
+    |> Enum.filter(fn {k, _} -> k == :function end)
+    |> Enum.flat_map(fn {_, v} -> v end)
   end
 
   def get_function_definition(module, name) do
