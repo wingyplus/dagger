@@ -96,13 +96,20 @@ func (m *ElixirSdk) Codegen(
 	modSource *dagger.ModuleSource,
 	introspectionJson *dagger.File,
 ) (*dagger.GeneratedCode, error) {
+	modName, err := modSource.ModuleName(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ctr, err := m.Common(ctx, modSource, introspectionJson)
 	if err != nil {
 		return nil, err
 	}
 
 	return dag.GeneratedCode(ctr.Directory(ModSourceDirPath)).
-		WithVCSGeneratedPaths([]string{genDir + "/**"}).
+		WithVCSGeneratedPaths([]string{
+			genDir + "/**",
+			ModSourceDirPath + "/" + normalizeModName(modName) + "/lib/mix/tasks/dagger.invoke.ex",
+		}).
 		WithVCSIgnoredPaths([]string{genDir}), nil
 }
 
