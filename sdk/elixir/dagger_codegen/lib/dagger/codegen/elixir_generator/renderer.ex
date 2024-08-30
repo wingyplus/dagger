@@ -87,7 +87,7 @@ defmodule Dagger.Codegen.ElixirGenerator.Renderer do
   def render_deprecated(field)
 
   def render_deprecated(%Field{deprecation_reason: ""}), do: ""
-  def render_deprecated(%Field{deprecation_reason: nil}), do: ""
+  def render_deprecated(%Field{deprecation_reason: :null}), do: ""
 
   def render_deprecated(%Field{deprecation_reason: reason}) do
     ["@deprecated", ~c" ", render_string(Formatter.format_doc(reason))]

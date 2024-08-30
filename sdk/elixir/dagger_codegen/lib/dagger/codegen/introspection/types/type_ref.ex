@@ -10,7 +10,7 @@ defmodule Dagger.Codegen.Introspection.Types.TypeRef do
       kind: kind,
       name: type_ref["name"],
       of_type:
-        unless is_nil(type_ref["ofType"]) do
+        if type_ref["ofType"] != :null do
           Dagger.Codegen.Introspection.Types.TypeRef.from_map(type_ref["ofType"])
         end
     }

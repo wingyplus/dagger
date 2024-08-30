@@ -32,7 +32,7 @@ defmodule Dagger.Codegen.CLI do
   end
 
   def handle_generate(%{outdir: outdir, introspection: introspection}) do
-    %{"__schema" => schema} = introspection |> File.read!() |> Jason.decode!()
+    %{"__schema" => schema} = introspection |> File.read!() |> :json.decode()
 
     IO.puts("Generate code to #{outdir}")
 
