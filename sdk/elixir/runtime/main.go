@@ -73,6 +73,7 @@ func (m *ElixirSdk) ModuleRuntime(
 	if err != nil {
 		return nil, err
 	}
+
 	subPath, err := modSource.SourceSubpath(ctx)
 	if err != nil {
 		return nil, err
@@ -83,12 +84,19 @@ func (m *ElixirSdk) ModuleRuntime(
 		return nil, err
 	}
 
-	return ctr.
+	elixirModule := normalizeModName(modName)
+	depsCache, buildCache := mixProjectCaches(elixirModule)
+
+	ctr = ctr.
+		WithWorkdir(elixirModule).
+		WithMountedCache("deps", depsCache).
+		WithMountedCache("_build", buildCache).
 		WithEntrypoint([]string{
 			"mix", "cmd",
-			"--cd", path.Join(ModSourceDirPath, subPath, normalizeModName(modName)),
-			"mix do deps.get + dagger.invoke",
-		}), nil
+			"--cd", path.Join(ModSourceDirPath, subPath, elixirModule),
+			"mix do deps.get --only dev + dagger.invoke",
+		})
+	return ctr, nil
 }
 
 func (m *ElixirSdk) Codegen(
@@ -159,7 +167,8 @@ func (m *ElixirSdk) WithNewElixirPackage(ctx context.Context, modName string) *E
 			WithExec([]string{"mix", "new", modName}).
 			WithDirectory(modName+"/lib/mix/tasks", dag.Directory()).
 			WithMountedFile("/template.exs", dag.CurrentModule().Source().File("template.exs")).
-			WithExec([]string{"elixir", "/template.exs", "generate", modName})
+			WithExec([]string{"elixir", "/template.exs", "generate", modName}).
+			WithExec([]string{"mix", "cmd", "--cd", modName, "mix deps.get"})
 	}
 	return m
 }
