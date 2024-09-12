@@ -18,6 +18,7 @@ const (
 )
 
 type PhpSdk struct {
+	ModSource     *dagger.Directory
 	SourceDir     *dagger.Directory
 	RequiredPaths []string
 }
@@ -35,6 +36,7 @@ func New(
 	return &PhpSdk{
 		RequiredPaths: []string{},
 		SourceDir:     sdkSourceDir,
+		ModSource:     dag.CurrentModule().Source(),
 	}, nil
 }
 
