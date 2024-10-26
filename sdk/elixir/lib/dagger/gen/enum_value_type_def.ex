@@ -2,6 +2,8 @@
 defmodule Dagger.EnumValueTypeDef do
   @moduledoc "A definition of a value in a custom enum defined in a Module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -36,5 +38,16 @@ defmodule Dagger.EnumValueTypeDef do
       enum_value_type_def.query_builder |> QB.select("name")
 
     Client.execute(enum_value_type_def.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_enum_value_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.EnumValueTypeDef do
+  def __encode__(value) do
+    Dagger.EnumValueTypeDef.id(value)
   end
 end

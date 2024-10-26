@@ -21,7 +21,7 @@ const (
 func New(
 	// Directory with the Elixir SDK source code.
 	// +optional
-	// +defaultPath="/sdk/elixir"
+	// +defaultPath="."
 	// +ignore=["**","!LICENSE","!lib/**/*.ex","!.formatter.exs","!mix.exs","!mix.lock","!dagger_codegen/lib/**/*.ex","!dagger_codegen/mix.exs","!dagger_codegen/mix.lock"]
 	sdkSourceDir *dagger.Directory,
 ) (*ElixirSdk, error) {

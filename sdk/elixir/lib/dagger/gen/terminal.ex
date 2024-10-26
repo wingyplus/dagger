@@ -2,6 +2,8 @@
 defmodule Dagger.Terminal do
   @moduledoc "An interactive terminal that clients can connect to."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -40,5 +42,16 @@ defmodule Dagger.Terminal do
          client: terminal.client
        }}
     end
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_terminal_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Terminal do
+  def __encode__(value) do
+    Dagger.Terminal.id(value)
   end
 end

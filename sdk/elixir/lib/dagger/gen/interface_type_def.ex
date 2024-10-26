@@ -2,6 +2,8 @@
 defmodule Dagger.InterfaceTypeDef do
   @moduledoc "A definition of a custom interface defined in a Module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -65,5 +67,16 @@ defmodule Dagger.InterfaceTypeDef do
       interface_type_def.query_builder |> QB.select("sourceModuleName")
 
     Client.execute(interface_type_def.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_interface_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.InterfaceTypeDef do
+  def __encode__(value) do
+    Dagger.InterfaceTypeDef.id(value)
   end
 end

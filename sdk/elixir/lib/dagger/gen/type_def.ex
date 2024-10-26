@@ -2,6 +2,8 @@
 defmodule Dagger.TypeDef do
   @moduledoc "A definition of a parameter or return type in a Module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -277,5 +279,16 @@ defmodule Dagger.TypeDef do
       query_builder: query_builder,
       client: type_def.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.TypeDef do
+  def __encode__(value) do
+    Dagger.TypeDef.id(value)
   end
 end

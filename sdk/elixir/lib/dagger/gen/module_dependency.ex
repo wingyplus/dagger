@@ -2,6 +2,8 @@
 defmodule Dagger.ModuleDependency do
   @moduledoc "The configuration of dependency of a module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -39,5 +41,16 @@ defmodule Dagger.ModuleDependency do
       query_builder: query_builder,
       client: module_dependency.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_module_dependency_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.ModuleDependency do
+  def __encode__(value) do
+    Dagger.ModuleDependency.id(value)
   end
 end

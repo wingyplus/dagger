@@ -2,6 +2,8 @@
 defmodule Dagger.ModuleSourceView do
   @moduledoc "A named set of path filters that can be applied to directory arguments provided to functions."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -36,5 +38,16 @@ defmodule Dagger.ModuleSourceView do
       module_source_view.query_builder |> QB.select("patterns")
 
     Client.execute(module_source_view.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_module_source_view_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.ModuleSourceView do
+  def __encode__(value) do
+    Dagger.ModuleSourceView.id(value)
   end
 end

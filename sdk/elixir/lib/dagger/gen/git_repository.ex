@@ -2,6 +2,8 @@
 defmodule Dagger.GitRepository do
   @moduledoc "A git repository."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -117,5 +119,16 @@ defmodule Dagger.GitRepository do
       query_builder: query_builder,
       client: git_repository.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_git_repository_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.GitRepository do
+  def __encode__(value) do
+    Dagger.GitRepository.id(value)
   end
 end

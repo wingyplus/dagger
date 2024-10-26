@@ -2,6 +2,8 @@
 defmodule Dagger.FunctionCall do
   @moduledoc "An active function call."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -77,5 +79,16 @@ defmodule Dagger.FunctionCall do
       {:ok, _} -> :ok
       error -> error
     end
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_function_call_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.FunctionCall do
+  def __encode__(value) do
+    Dagger.FunctionCall.id(value)
   end
 end

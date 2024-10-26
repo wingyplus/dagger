@@ -33,7 +33,7 @@ defmodule Dagger.Mod do
   def invoke(dag, module, _parent, "", _fn_name, _input_args) do
     dag
     |> Dagger.Mod.Module.define(module)
-    |> encode(Dagger.Module)
+    |> Dagger.Encode.encode(Dagger.Module)
   end
 
   def invoke(dag, module, _parent, _parent_name, fn_name, input_args) do
@@ -44,8 +44,8 @@ defmodule Dagger.Mod do
 
     case apply(module, fun, args) do
       {:error, _} = error -> error
-      {:ok, result} -> encode(result, return_type)
-      result -> encode(result, return_type)
+      {:ok, result} -> Dagger.Encode.encode(result, return_type)
+      result -> Dagger.Encode.encode(result, return_type)
     end
   end
 
@@ -55,100 +55,13 @@ defmodule Dagger.Mod do
         {:ok, name} = Dagger.FunctionCallArgValue.name(arg)
         {:ok, value} = Dagger.FunctionCallArgValue.value(arg)
         name = String.to_existing_atom(name)
-        {:ok, value} = decode(value, get_in(args_def, [name, :type]), dag)
+        {:ok, value} = Dagger.Decode.decode(value, get_in(args_def, [name, :type]), dag)
         {name, value}
       end)
 
     for {name, _} <- args_def do
       Map.get(args, name)
     end
-  end
-
-  def decode(value, type, dag) do
-    with {:ok, value} <- Jason.decode(value) do
-      cast(value, type, dag)
-    end
-  end
-
-  defp cast(value, :integer, _) when is_integer(value) do
-    {:ok, value}
-  end
-
-  defp cast(value, :boolean, _) when is_boolean(value) do
-    {:ok, value}
-  end
-
-  defp cast(value, :string, _) when is_binary(value) do
-    {:ok, value}
-  end
-
-  defp cast(values, {:list, type}, dag) when is_list(values) do
-    values =
-      for value <- values do
-        {:ok, value} = cast(value, type, dag)
-        value
-      end
-
-    {:ok, values}
-  end
-
-  defp cast(nil, {:optional, _type}, _dag), do: {:ok, nil}
-  defp cast(value, {:optional, type}, dag), do: cast(value, type, dag)
-
-  defp cast(value, module, dag) when is_binary(value) and is_atom(module) do
-    # NOTE: It feels like we really need a protocol for the module to 
-    # load the data from id.
-    ["Dagger", name] = Module.split(module)
-    name = Macro.underscore(name)
-    fun = String.to_existing_atom("load_#{name}_from_id")
-    {:ok, apply(Dagger.Client, fun, [dag, value])}
-  end
-
-  defp cast(value, type, _) do
-    {:error, "cannot cast value #{value} to type #{type}"}
-  end
-
-  def encode(result, type) do
-    with {:ok, value} <- dump(result, type) do
-      Jason.encode(value)
-    end
-  end
-
-  defp dump(value, :integer) when is_integer(value) do
-    {:ok, value}
-  end
-
-  defp dump(value, :boolean) when is_boolean(value) do
-    {:ok, value}
-  end
-
-  defp dump(value, :string) when is_binary(value) do
-    {:ok, value}
-  end
-
-  defp dump(values, {:list, type}) when is_list(values) do
-    values =
-      for value <- values do
-        {:ok, value} = dump(value, type)
-        value
-      end
-
-    {:ok, values}
-  end
-
-  defp dump(%module{} = struct, module) do
-    value =
-      if function_exported?(module, :id, 1) do
-        Dagger.ID.id!(struct)
-      else
-        struct
-      end
-
-    {:ok, value}
-  end
-
-  defp dump(value, type) do
-    {:error, "cannot dump value #{value} to type #{type}"}
   end
 
   defp format_error(%{__exception__: true} = exception), do: Exception.message(exception)

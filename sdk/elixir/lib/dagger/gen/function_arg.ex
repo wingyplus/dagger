@@ -6,6 +6,8 @@ defmodule Dagger.FunctionArg do
   This is a specification for an argument at function definition time, not an argument passed at function call time.
   """
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -79,5 +81,16 @@ defmodule Dagger.FunctionArg do
       query_builder: query_builder,
       client: function_arg.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_function_arg_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.FunctionArg do
+  def __encode__(value) do
+    Dagger.FunctionArg.id(value)
   end
 end

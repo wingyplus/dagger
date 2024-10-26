@@ -2,6 +2,8 @@
 defmodule Dagger.Host do
   @moduledoc "Information about the host environment."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -112,5 +114,16 @@ defmodule Dagger.Host do
       query_builder: query_builder,
       client: host.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_host_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Host do
+  def __encode__(value) do
+    Dagger.Host.id(value)
   end
 end

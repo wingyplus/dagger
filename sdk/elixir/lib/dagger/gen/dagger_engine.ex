@@ -2,6 +2,8 @@
 defmodule Dagger.DaggerEngine do
   @moduledoc "The Dagger engine configuration and state"
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -30,5 +32,16 @@ defmodule Dagger.DaggerEngine do
       query_builder: query_builder,
       client: dagger_engine.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_dagger_engine_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.DaggerEngine do
+  def __encode__(value) do
+    Dagger.DaggerEngine.id(value)
   end
 end

@@ -2,6 +2,8 @@
 defmodule Dagger.GitModuleSource do
   @moduledoc "Module source originating from a git repo."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -93,5 +95,16 @@ defmodule Dagger.GitModuleSource do
       git_module_source.query_builder |> QB.select("version")
 
     Client.execute(git_module_source.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_git_module_source_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.GitModuleSource do
+  def __encode__(value) do
+    Dagger.GitModuleSource.id(value)
   end
 end

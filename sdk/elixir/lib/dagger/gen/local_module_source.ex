@@ -2,6 +2,8 @@
 defmodule Dagger.LocalModuleSource do
   @moduledoc "Module source that that originates from a path locally relative to an arbitrary directory."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -48,5 +50,16 @@ defmodule Dagger.LocalModuleSource do
       local_module_source.query_builder |> QB.select("rootSubpath")
 
     Client.execute(local_module_source.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_local_module_source_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.LocalModuleSource do
+  def __encode__(value) do
+    Dagger.LocalModuleSource.id(value)
   end
 end

@@ -6,6 +6,8 @@ defmodule Dagger.FieldTypeDef do
   A field on an object has a static value, as opposed to a function on an object whose value is computed by invoking code (and can accept arguments).
   """
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -52,5 +54,16 @@ defmodule Dagger.FieldTypeDef do
       query_builder: query_builder,
       client: field_type_def.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_field_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.FieldTypeDef do
+  def __encode__(value) do
+    Dagger.FieldTypeDef.id(value)
   end
 end

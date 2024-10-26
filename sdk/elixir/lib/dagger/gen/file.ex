@@ -2,6 +2,8 @@
 defmodule Dagger.File do
   @moduledoc "A file."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -112,5 +114,16 @@ defmodule Dagger.File do
       query_builder: query_builder,
       client: file.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_file_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.File do
+  def __encode__(value) do
+    Dagger.File.id(value)
   end
 end

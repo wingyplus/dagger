@@ -2,6 +2,8 @@
 defmodule Dagger.GeneratedCode do
   @moduledoc "The result of running an SDK's codegen."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -76,5 +78,16 @@ defmodule Dagger.GeneratedCode do
       query_builder: query_builder,
       client: generated_code.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_generated_code_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.GeneratedCode do
+  def __encode__(value) do
+    Dagger.GeneratedCode.id(value)
   end
 end

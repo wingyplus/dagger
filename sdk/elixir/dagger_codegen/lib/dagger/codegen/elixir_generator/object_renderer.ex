@@ -14,13 +14,36 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
   Render object type into module.
   """
   def render(type) do
-    Renderer.render_module(type, render_module_body(type))
+    mod = Formatter.format_module(type.name)
+
+    [
+      Renderer.render_module(type, render_module_body(type)),
+      if Enum.any?(type.fields, &(&1.name == "id")) do
+        [
+          [?\n, ?\n],
+          """
+          defimpl Dagger.Encoder, for: #{mod} do
+            def __encode__(value) do
+              #{mod}.id(value)
+            end
+          end
+          """
+        ]
+      else
+        []
+      end
+    ]
   end
 
   def render_module_body(type) do
     module_var = Formatter.format_var_name(type.name)
 
     [
+      if type.name != "Query" do
+        ["@behaviour Dagger.Decoder", ?\n, ?\n]
+      else
+        []
+      end,
       """
       alias Dagger.Core.Client
       alias Dagger.Core.QueryBuilder, as: QB
@@ -38,6 +61,17 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
           render_function(type, field, module_var),
           ?\n
         ]
+      end,
+      ?\n,
+      if type.name != "Query" do
+        """
+        @impl Dagger.Decoder
+        def __decode__(dag, value) do
+          Dagger.Client.load_#{module_var}_from_id(dag, value)
+        end
+        """
+      else
+        []
       end
     ]
   end

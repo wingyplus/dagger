@@ -2,6 +2,8 @@
 defmodule Dagger.DaggerEngineCacheEntry do
   @moduledoc "An individual cache entry in a cache entry set"
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -63,5 +65,16 @@ defmodule Dagger.DaggerEngineCacheEntry do
       dagger_engine_cache_entry.query_builder |> QB.select("mostRecentUseTimeUnixNano")
 
     Client.execute(dagger_engine_cache_entry.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_dagger_engine_cache_entry_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.DaggerEngineCacheEntry do
+  def __encode__(value) do
+    Dagger.DaggerEngineCacheEntry.id(value)
   end
 end

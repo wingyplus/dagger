@@ -2,6 +2,8 @@
 defmodule Dagger.Port do
   @moduledoc "A port exposed by a container."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -57,5 +59,16 @@ defmodule Dagger.Port do
       {:ok, enum} -> {:ok, Dagger.NetworkProtocol.from_string(enum)}
       error -> error
     end
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_port_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Port do
+  def __encode__(value) do
+    Dagger.Port.id(value)
   end
 end

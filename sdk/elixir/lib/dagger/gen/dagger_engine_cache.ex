@@ -2,6 +2,8 @@
 defmodule Dagger.DaggerEngineCache do
   @moduledoc "A cache storage for the Dagger engine"
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -51,5 +53,16 @@ defmodule Dagger.DaggerEngineCache do
       {:ok, _} -> :ok
       error -> error
     end
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_dagger_engine_cache_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.DaggerEngineCache do
+  def __encode__(value) do
+    Dagger.DaggerEngineCache.id(value)
   end
 end

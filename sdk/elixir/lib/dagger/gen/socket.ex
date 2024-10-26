@@ -2,6 +2,8 @@
 defmodule Dagger.Socket do
   @moduledoc "A Unix or TCP/IP socket that can be mounted into a container."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -18,5 +20,16 @@ defmodule Dagger.Socket do
       socket.query_builder |> QB.select("id")
 
     Client.execute(socket.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_socket_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Socket do
+  def __encode__(value) do
+    Dagger.Socket.id(value)
   end
 end

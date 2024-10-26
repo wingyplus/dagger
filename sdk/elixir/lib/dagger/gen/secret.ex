@@ -2,6 +2,8 @@
 defmodule Dagger.Secret do
   @moduledoc "A reference to a secret value, which can be handled more safely than the value itself."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -36,5 +38,16 @@ defmodule Dagger.Secret do
       secret.query_builder |> QB.select("plaintext")
 
     Client.execute(secret.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_secret_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Secret do
+  def __encode__(value) do
+    Dagger.Secret.id(value)
   end
 end

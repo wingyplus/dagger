@@ -2,6 +2,8 @@
 defmodule Dagger.ObjectTypeDef do
   @moduledoc "A definition of a custom object defined in a Module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -97,5 +99,16 @@ defmodule Dagger.ObjectTypeDef do
       object_type_def.query_builder |> QB.select("sourceModuleName")
 
     Client.execute(object_type_def.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_object_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.ObjectTypeDef do
+  def __encode__(value) do
+    Dagger.ObjectTypeDef.id(value)
   end
 end

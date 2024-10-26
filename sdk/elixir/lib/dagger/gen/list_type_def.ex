@@ -2,6 +2,8 @@
 defmodule Dagger.ListTypeDef do
   @moduledoc "A definition of a list type in a Module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -30,5 +32,16 @@ defmodule Dagger.ListTypeDef do
       list_type_def.query_builder |> QB.select("id")
 
     Client.execute(list_type_def.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_list_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.ListTypeDef do
+  def __encode__(value) do
+    Dagger.ListTypeDef.id(value)
   end
 end

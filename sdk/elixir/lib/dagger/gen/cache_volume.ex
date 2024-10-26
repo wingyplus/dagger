@@ -2,6 +2,8 @@
 defmodule Dagger.CacheVolume do
   @moduledoc "A directory whose contents persist across runs."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -18,5 +20,16 @@ defmodule Dagger.CacheVolume do
       cache_volume.query_builder |> QB.select("id")
 
     Client.execute(cache_volume.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_cache_volume_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.CacheVolume do
+  def __encode__(value) do
+    Dagger.CacheVolume.id(value)
   end
 end

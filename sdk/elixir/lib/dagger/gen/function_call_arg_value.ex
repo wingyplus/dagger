@@ -2,6 +2,8 @@
 defmodule Dagger.FunctionCallArgValue do
   @moduledoc "A value passed as a named argument to a function call."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -36,5 +38,16 @@ defmodule Dagger.FunctionCallArgValue do
       function_call_arg_value.query_builder |> QB.select("value")
 
     Client.execute(function_call_arg_value.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_function_call_arg_value_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.FunctionCallArgValue do
+  def __encode__(value) do
+    Dagger.FunctionCallArgValue.id(value)
   end
 end

@@ -2,6 +2,8 @@
 defmodule Dagger.Service do
   @moduledoc "A content-addressed service providing TCP connectivity."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -134,5 +136,16 @@ defmodule Dagger.Service do
       query_builder: query_builder,
       client: service.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_service_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Service do
+  def __encode__(value) do
+    Dagger.Service.id(value)
   end
 end

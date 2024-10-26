@@ -2,6 +2,8 @@
 defmodule Dagger.GitRef do
   @moduledoc "A git ref (tag, branch, or commit)."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -41,5 +43,16 @@ defmodule Dagger.GitRef do
       query_builder: query_builder,
       client: git_ref.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_git_ref_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.GitRef do
+  def __encode__(value) do
+    Dagger.GitRef.id(value)
   end
 end

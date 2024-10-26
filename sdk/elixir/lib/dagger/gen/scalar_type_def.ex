@@ -2,6 +2,8 @@
 defmodule Dagger.ScalarTypeDef do
   @moduledoc "A definition of a custom scalar defined in a Module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -45,5 +47,16 @@ defmodule Dagger.ScalarTypeDef do
       scalar_type_def.query_builder |> QB.select("sourceModuleName")
 
     Client.execute(scalar_type_def.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_scalar_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.ScalarTypeDef do
+  def __encode__(value) do
+    Dagger.ScalarTypeDef.id(value)
   end
 end

@@ -2,6 +2,8 @@
 defmodule Dagger.Directory do
   @moduledoc "A directory."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -322,5 +324,16 @@ defmodule Dagger.Directory do
       query_builder: query_builder,
       client: directory.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_directory_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Directory do
+  def __encode__(value) do
+    Dagger.Directory.id(value)
   end
 end

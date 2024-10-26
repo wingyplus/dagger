@@ -2,6 +2,8 @@
 defmodule Dagger.Label do
   @moduledoc "A simple key value object that represents a label."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -36,5 +38,16 @@ defmodule Dagger.Label do
       label.query_builder |> QB.select("value")
 
     Client.execute(label.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_label_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Label do
+  def __encode__(value) do
+    Dagger.Label.id(value)
   end
 end

@@ -2,6 +2,8 @@
 defmodule Dagger.Module do
   @moduledoc "A Dagger module."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -291,5 +293,16 @@ defmodule Dagger.Module do
       query_builder: query_builder,
       client: module.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_module_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Module do
+  def __encode__(value) do
+    Dagger.Module.id(value)
   end
 end

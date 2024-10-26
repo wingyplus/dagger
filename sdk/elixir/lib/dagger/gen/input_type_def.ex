@@ -7,6 +7,8 @@ defmodule Dagger.InputTypeDef do
   module accept input objects via their id rather than graphql input types.
   """
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -52,5 +54,16 @@ defmodule Dagger.InputTypeDef do
       input_type_def.query_builder |> QB.select("name")
 
     Client.execute(input_type_def.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_input_type_def_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.InputTypeDef do
+  def __encode__(value) do
+    Dagger.InputTypeDef.id(value)
   end
 end

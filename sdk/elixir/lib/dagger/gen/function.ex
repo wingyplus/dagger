@@ -6,6 +6,8 @@ defmodule Dagger.Function do
   A function always evaluates against a parent object and is given a set of named arguments.
   """
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -110,5 +112,16 @@ defmodule Dagger.Function do
       query_builder: query_builder,
       client: function.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_function_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Function do
+  def __encode__(value) do
+    Dagger.Function.id(value)
   end
 end

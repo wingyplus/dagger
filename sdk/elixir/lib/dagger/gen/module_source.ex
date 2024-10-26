@@ -2,6 +2,8 @@
 defmodule Dagger.ModuleSource do
   @moduledoc "The source needed to load and run a module, along with any metadata about the source such as versions/urls/etc."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -354,5 +356,16 @@ defmodule Dagger.ModuleSource do
       query_builder: query_builder,
       client: module_source.client
     }
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_module_source_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.ModuleSource do
+  def __encode__(value) do
+    Dagger.ModuleSource.id(value)
   end
 end

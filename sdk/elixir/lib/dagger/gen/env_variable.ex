@@ -2,6 +2,8 @@
 defmodule Dagger.EnvVariable do
   @moduledoc "An environment variable name and value."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -36,5 +38,16 @@ defmodule Dagger.EnvVariable do
       env_variable.query_builder |> QB.select("value")
 
     Client.execute(env_variable.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_env_variable_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.EnvVariable do
+  def __encode__(value) do
+    Dagger.EnvVariable.id(value)
   end
 end

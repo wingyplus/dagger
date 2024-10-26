@@ -2,6 +2,8 @@
 defmodule Dagger.Container do
   @moduledoc "An OCI-compatible container, also known as a Docker container."
 
+  @behaviour Dagger.Decoder
+
   alias Dagger.Core.Client
   alias Dagger.Core.QueryBuilder, as: QB
 
@@ -1210,5 +1212,16 @@ defmodule Dagger.Container do
       container.query_builder |> QB.select("workdir")
 
     Client.execute(container.client, query_builder)
+  end
+
+  @impl Dagger.Decoder
+  def __decode__(dag, value) do
+    Dagger.Client.load_container_from_id(dag, value)
+  end
+end
+
+defimpl Dagger.Encoder, for: Dagger.Container do
+  def __encode__(value) do
+    Dagger.Container.id(value)
   end
 end
