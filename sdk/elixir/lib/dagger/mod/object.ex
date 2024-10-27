@@ -107,13 +107,24 @@ defmodule Dagger.Mod.Object do
     name = opts[:name]
 
     quote do
-      import Dagger.Mod.Object, only: [defn: 2]
+      @behaviour Dagger.Decoder
+      @before_compile Dagger.Mod.Object
+
+      import Dagger.Mod.Object, only: [defn: 2, field: 2, field: 3]
       import Dagger.Global, only: [dag: 0]
 
+      Module.register_attribute(__MODULE__, :field, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :function, accumulate: true, persist: true)
 
       # Get an object name
       def __object__(:name), do: unquote(name)
+
+      # List available field definitions.
+      def __object__(:fields) do
+        __MODULE__.__info__(:attributes)
+        |> Keyword.get_values(:field)
+        |> Enum.flat_map(& &1)
+      end
 
       # List available function definitions.
       def __object__(:functions) do
@@ -127,6 +138,63 @@ defmodule Dagger.Mod.Object do
         __object__(:functions)
         |> Keyword.fetch!(name)
       end
+    end
+  end
+
+  defmacro __before_compile__(env) do
+    fields = Module.get_attribute(env.module, :field)
+    spec = typespec_for_struct(fields)
+
+    quote do
+      @type t() :: unquote(spec)
+      defstruct Enum.map(@field, fn {name, _, _, _} -> name end)
+
+      @impl Dagger.Decoder
+      def __decode__(_dag, _value) do
+        # TODO: implements me.
+        %__MODULE__{}
+      end
+
+      defimpl Dagger.Encoder do
+        def __encode__(value) do
+          {:ok, Map.from_struct(value)}
+        end
+      end
+    end
+  end
+
+  defp typespec_for_struct(fields) do
+    fields =
+      for {name, type, _, _} <- fields do
+        {name, type}
+      end
+
+    {:%, [],
+     [
+       {:__MODULE__, [], nil},
+       {:%{}, [], fields}
+     ]}
+  end
+
+  @doc """
+  Declare a field. 
+
+  ## Example
+
+    defmodule A do
+      use Dagger.Mod.Object, name: "A"
+
+      # Declare a field `a` as `String` type.
+      field :a, String.t()
+      # Declare a field `b` as `Container` type and it's optional.
+      field :b, Dagger.Container.t(), optional: true
+    end
+  """
+  defmacro field(name, type, opts \\ []) when is_atom(name) do
+    def = compile_typespec!({type, opts})
+
+    quote do
+      @field {unquote(name), unquote(Macro.escape(type)), unquote(def), unquote(opts)}
     end
   end
 

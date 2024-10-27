@@ -170,6 +170,21 @@ defmodule Dagger.Mod.ObjectTest do
         end
       end
     end
+
+    test "struct field support" do
+      assert ObjectModStruct.__struct__() |> Map.keys() |> Enum.sort() == [
+               :__struct__,
+               :container,
+               :directory,
+               :name
+             ]
+
+      assert [
+               {:name, _, :string, []},
+               {:container, _, Dagger.Container, []},
+               {:directory, _, Dagger.Directory, [default_path: "."]}
+             ] = ObjectModStruct.__object__(:fields)
+    end
   end
 
   test "get_module_doc/1" do
