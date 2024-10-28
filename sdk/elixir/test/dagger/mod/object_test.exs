@@ -184,6 +184,23 @@ defmodule Dagger.Mod.ObjectTest do
                {:container, _, Dagger.Container, []},
                {:directory, _, Dagger.Directory, [default_path: "."]}
              ] = ObjectModStruct.__object__(:fields)
+
+      assert {:ok, types} = Code.Typespec.fetch_types(ObjectModStruct)
+
+      assert [t] =
+               types
+               |> Enum.map(fn {:type, type} -> Code.Typespec.type_to_quoted(type) end)
+               |> Enum.map(&Macro.to_string/1)
+
+      assert t ==
+               """
+               t() :: %ObjectModStruct{
+                 container: Dagger.Container.t(),
+                 directory: Dagger.Directory.t(),
+                 name: String.t()
+               }
+               """
+               |> String.trim()
     end
   end
 

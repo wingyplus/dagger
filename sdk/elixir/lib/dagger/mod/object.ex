@@ -144,10 +144,11 @@ defmodule Dagger.Mod.Object do
   defmacro __before_compile__(env) do
     fields = Module.get_attribute(env.module, :field)
     spec = typespec_for_struct(fields)
+    field_names = struct_field_names(fields)
 
     quote do
       @type t() :: unquote(spec)
-      defstruct Enum.map(@field, fn {name, _, _, _} -> name end)
+      defstruct unquote(field_names)
 
       @impl Dagger.Decoder
       def __decode__(_dag, _value) do
@@ -157,6 +158,8 @@ defmodule Dagger.Mod.Object do
 
       defimpl Dagger.Encoder do
         def __encode__(value) do
+          # TODO: oh you cannot do something like this! the object key is camel case
+          # while struct fields is snake case.
           {:ok, Map.from_struct(value)}
         end
       end
@@ -174,6 +177,12 @@ defmodule Dagger.Mod.Object do
        {:__MODULE__, [], nil},
        {:%{}, [], fields}
      ]}
+  end
+
+  defp struct_field_names(fields) do
+    for {name, _, _, _} <- fields do
+      name
+    end
   end
 
   @doc """
