@@ -29,7 +29,7 @@ defmodule Dagger.Mod.Module do
       |> Dagger.TypeDef.with_object(Helper.camelize(mod_name))
 
     functions
-    |> Enum.map(&Function.define(dag, module, &1))
+    |> Enum.map(&(Function.define(dag, module, &1) |> dbg()))
     |> Enum.reduce(
       type_def,
       &Dagger.TypeDef.with_function(&2, &1)
