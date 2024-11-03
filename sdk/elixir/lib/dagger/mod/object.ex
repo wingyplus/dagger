@@ -95,6 +95,7 @@ defmodule Dagger.Mod.Object do
       nil -> nil
       :none -> nil
       :hidden -> nil
+      {:error, :module_not_found} -> nil
     end
   end
 
