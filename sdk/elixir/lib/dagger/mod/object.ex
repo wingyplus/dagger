@@ -65,7 +65,7 @@ defmodule Dagger.Mod.Object do
   """
   @spec get_module_doc(module()) :: String.t() | nil
   def get_module_doc(module) do
-    with {module_doc, _} <- fetch_docs(module),
+    with {:ok, {module_doc, _}} <- fetch_docs(module),
          %{"en" => doc} <- module_doc do
       String.trim(doc)
     else
@@ -87,7 +87,7 @@ defmodule Dagger.Mod.Object do
       _ -> false
     end
 
-    with {_, function_docs} <- fetch_docs(module),
+    with {:ok, {_, function_docs}} <- fetch_docs(module),
          {{:function, ^name, _}, _, _, doc_content, _} <- Enum.find(function_docs, fun),
          %{"en" => doc} <- doc_content do
       String.trim(doc)
@@ -101,7 +101,7 @@ defmodule Dagger.Mod.Object do
 
   defp fetch_docs(module) do
     with {:docs_v1, _, :elixir, _, module_doc, _, function_docs} <- Code.fetch_docs(module) do
-      {module_doc, function_docs}
+      {:ok, {module_doc, function_docs}}
     end
   end
 
