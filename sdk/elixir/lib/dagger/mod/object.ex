@@ -100,8 +100,9 @@ defmodule Dagger.Mod.Object do
   end
 
   defp fetch_docs(module) do
-    {:docs_v1, _, :elixir, _, module_doc, _, function_docs} = Code.fetch_docs(module)
-    {module_doc, function_docs}
+    with {:docs_v1, _, :elixir, _, module_doc, _, function_docs} <- Code.fetch_docs(module) do
+      {module_doc, function_docs}
+    end
   end
 
   defmacro __using__(opts) do
