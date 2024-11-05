@@ -110,7 +110,7 @@ defmodule Dagger.ModuleSource do
 
   @doc "The directory containing the module configuration and source code (source code may be in a subdir)."
   @spec directory(t(), String.t()) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = module_source, path) do
+  def directory(%__MODULE__{} = module_source, path) when is_binary(path) do
     query_builder =
       module_source.query_builder |> QB.select("directory") |> QB.put_arg("path", path)
 
@@ -187,7 +187,8 @@ defmodule Dagger.ModuleSource do
           {:view_name, String.t() | nil},
           {:ignore, [String.t()]}
         ]) :: Dagger.Directory.t()
-  def resolve_directory_from_caller(%__MODULE__{} = module_source, path, optional_args \\ []) do
+  def resolve_directory_from_caller(%__MODULE__{} = module_source, path, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       module_source.query_builder
       |> QB.select("resolveDirectoryFromCaller")
@@ -233,7 +234,7 @@ defmodule Dagger.ModuleSource do
 
   @doc "Retrieve a named view defined for this module source."
   @spec view(t(), String.t()) :: Dagger.ModuleSourceView.t()
-  def view(%__MODULE__{} = module_source, name) do
+  def view(%__MODULE__{} = module_source, name) when is_binary(name) do
     query_builder =
       module_source.query_builder |> QB.select("view") |> QB.put_arg("name", name)
 
@@ -307,7 +308,7 @@ defmodule Dagger.ModuleSource do
 
   @doc "Update the module source with a new name."
   @spec with_name(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_name(%__MODULE__{} = module_source, name) do
+  def with_name(%__MODULE__{} = module_source, name) when is_binary(name) do
     query_builder =
       module_source.query_builder |> QB.select("withName") |> QB.put_arg("name", name)
 
@@ -319,7 +320,7 @@ defmodule Dagger.ModuleSource do
 
   @doc "Update the module source with a new SDK."
   @spec with_sdk(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_sdk(%__MODULE__{} = module_source, sdk) do
+  def with_sdk(%__MODULE__{} = module_source, sdk) when is_binary(sdk) do
     query_builder =
       module_source.query_builder |> QB.select("withSDK") |> QB.put_arg("sdk", sdk)
 
@@ -331,7 +332,7 @@ defmodule Dagger.ModuleSource do
 
   @doc "Update the module source with a new source subpath."
   @spec with_source_subpath(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_source_subpath(%__MODULE__{} = module_source, path) do
+  def with_source_subpath(%__MODULE__{} = module_source, path) when is_binary(path) do
     query_builder =
       module_source.query_builder |> QB.select("withSourceSubpath") |> QB.put_arg("path", path)
 
@@ -343,7 +344,7 @@ defmodule Dagger.ModuleSource do
 
   @doc "Update the module source with a new named view."
   @spec with_view(t(), String.t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_view(%__MODULE__{} = module_source, name, patterns) do
+  def with_view(%__MODULE__{} = module_source, name, patterns) when is_binary(name) do
     query_builder =
       module_source.query_builder
       |> QB.select("withView")

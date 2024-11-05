@@ -185,7 +185,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
 
         @doc "Set the return value of the function call to the provided value."
         @spec return_value(t(), Dagger.JSON.t()) :: :ok | {:error, term()}
-        def return_value(%__MODULE__{} = function_call, value) do
+        def return_value(%__MODULE__{} = function_call, value) when is_binary(value) do
           query_builder =
             function_call.query_builder |> QB.select("returnValue") |> QB.put_arg("value", value)
 
@@ -277,7 +277,8 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
                 {:exclude, [String.t()]},
                 {:include, [String.t()]}
               ]) :: Dagger.Directory.t()
-        def with_directory(%__MODULE__{} = directory_, path, directory, optional_args \\\\ []) do
+        def with_directory(%__MODULE__{} = directory_, path, directory, optional_args \\\\ [])
+            when is_binary(path) do
           query_builder =
             directory_.query_builder
             |> QB.select("withDirectory")

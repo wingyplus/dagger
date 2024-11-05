@@ -11,7 +11,9 @@ defmodule Dagger.Client do
 
   @doc "Retrieves a content-addressed blob."
   @spec blob(t(), String.t(), integer(), String.t(), String.t()) :: Dagger.Directory.t()
-  def blob(%__MODULE__{} = client, digest, size, media_type, uncompressed) do
+  def blob(%__MODULE__{} = client, digest, size, media_type, uncompressed)
+      when is_binary(digest) and is_integer(size) and is_binary(media_type) and
+             is_binary(uncompressed) do
     query_builder =
       client.query_builder
       |> QB.select("blob")
@@ -28,7 +30,7 @@ defmodule Dagger.Client do
 
   @doc "Retrieves a container builtin to the engine."
   @spec builtin_container(t(), String.t()) :: Dagger.Container.t()
-  def builtin_container(%__MODULE__{} = client, digest) do
+  def builtin_container(%__MODULE__{} = client, digest) when is_binary(digest) do
     query_builder =
       client.query_builder |> QB.select("builtinContainer") |> QB.put_arg("digest", digest)
 
@@ -40,7 +42,7 @@ defmodule Dagger.Client do
 
   @doc "Constructs a cache volume for a given cache key."
   @spec cache_volume(t(), String.t()) :: Dagger.CacheVolume.t()
-  def cache_volume(%__MODULE__{} = client, key) do
+  def cache_volume(%__MODULE__{} = client, key) when is_binary(key) do
     query_builder =
       client.query_builder |> QB.select("cacheVolume") |> QB.put_arg("key", key)
 
@@ -151,7 +153,7 @@ defmodule Dagger.Client do
 
   @doc "Creates a function."
   @spec function(t(), String.t(), Dagger.TypeDef.t()) :: Dagger.Function.t()
-  def function(%__MODULE__{} = client, name, return_type) do
+  def function(%__MODULE__{} = client, name, return_type) when is_binary(name) do
     query_builder =
       client.query_builder
       |> QB.select("function")
@@ -185,7 +187,7 @@ defmodule Dagger.Client do
           {:ssh_known_hosts, String.t() | nil},
           {:ssh_auth_socket, Dagger.SocketID.t() | nil}
         ]) :: Dagger.GitRepository.t()
-  def git(%__MODULE__{} = client, url, optional_args \\ []) do
+  def git(%__MODULE__{} = client, url, optional_args \\ []) when is_binary(url) do
     query_builder =
       client.query_builder
       |> QB.select("git")
@@ -216,7 +218,7 @@ defmodule Dagger.Client do
   @doc "Returns a file containing an http remote url content."
   @spec http(t(), String.t(), [{:experimental_service_host, Dagger.ServiceID.t() | nil}]) ::
           Dagger.File.t()
-  def http(%__MODULE__{} = client, url, optional_args \\ []) do
+  def http(%__MODULE__{} = client, url, optional_args \\ []) when is_binary(url) do
     query_builder =
       client.query_builder
       |> QB.select("http")
@@ -757,7 +759,8 @@ defmodule Dagger.Client do
           {:stable, boolean() | nil},
           {:rel_host_path, String.t() | nil}
         ]) :: Dagger.ModuleSource.t()
-  def module_source(%__MODULE__{} = client, ref_string, optional_args \\ []) do
+  def module_source(%__MODULE__{} = client, ref_string, optional_args \\ [])
+      when is_binary(ref_string) do
     query_builder =
       client.query_builder
       |> QB.select("moduleSource")
@@ -774,7 +777,7 @@ defmodule Dagger.Client do
 
   @doc "Reference a secret by name."
   @spec secret(t(), String.t(), [{:accessor, String.t() | nil}]) :: Dagger.Secret.t()
-  def secret(%__MODULE__{} = client, name, optional_args \\ []) do
+  def secret(%__MODULE__{} = client, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       client.query_builder
       |> QB.select("secret")
@@ -793,7 +796,8 @@ defmodule Dagger.Client do
   The plaintext value is limited to a size of 128000 bytes.
   """
   @spec set_secret(t(), String.t(), String.t()) :: Dagger.Secret.t()
-  def set_secret(%__MODULE__{} = client, name, plaintext) do
+  def set_secret(%__MODULE__{} = client, name, plaintext)
+      when is_binary(name) and is_binary(plaintext) do
     query_builder =
       client.query_builder
       |> QB.select("setSecret")
@@ -808,7 +812,8 @@ defmodule Dagger.Client do
 
   @doc "Creates source map metadata."
   @spec source_map(t(), String.t(), integer(), integer()) :: Dagger.SourceMap.t()
-  def source_map(%__MODULE__{} = client, filename, line, column) do
+  def source_map(%__MODULE__{} = client, filename, line, column)
+      when is_binary(filename) and is_integer(line) and is_integer(column) do
     query_builder =
       client.query_builder
       |> QB.select("sourceMap")

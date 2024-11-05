@@ -14,7 +14,7 @@ defmodule Dagger.Host do
   @doc "Accesses a directory on the host."
   @spec directory(t(), String.t(), [{:exclude, [String.t()]}, {:include, [String.t()]}]) ::
           Dagger.Directory.t()
-  def directory(%__MODULE__{} = host, path, optional_args \\ []) do
+  def directory(%__MODULE__{} = host, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       host.query_builder
       |> QB.select("directory")
@@ -30,7 +30,7 @@ defmodule Dagger.Host do
 
   @doc "Accesses a file on the host."
   @spec file(t(), String.t()) :: Dagger.File.t()
-  def file(%__MODULE__{} = host, path) do
+  def file(%__MODULE__{} = host, path) when is_binary(path) do
     query_builder =
       host.query_builder |> QB.select("file") |> QB.put_arg("path", path)
 
@@ -70,7 +70,8 @@ defmodule Dagger.Host do
   The file is limited to a size of 512000 bytes.
   """
   @spec set_secret_file(t(), String.t(), String.t()) :: Dagger.Secret.t()
-  def set_secret_file(%__MODULE__{} = host, name, path) do
+  def set_secret_file(%__MODULE__{} = host, name, path)
+      when is_binary(name) and is_binary(path) do
     query_builder =
       host.query_builder
       |> QB.select("setSecretFile")
@@ -104,7 +105,7 @@ defmodule Dagger.Host do
 
   @doc "Accesses a Unix socket on the host."
   @spec unix_socket(t(), String.t()) :: Dagger.Socket.t()
-  def unix_socket(%__MODULE__{} = host, path) do
+  def unix_socket(%__MODULE__{} = host, path) when is_binary(path) do
     query_builder =
       host.query_builder |> QB.select("unixSocket") |> QB.put_arg("path", path)
 

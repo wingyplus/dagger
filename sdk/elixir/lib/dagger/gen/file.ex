@@ -35,7 +35,7 @@ defmodule Dagger.File do
   @doc "Writes the file to a file path on the host."
   @spec export(t(), String.t(), [{:allow_parent_dir_path, boolean() | nil}]) ::
           {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = file, path, optional_args \\ []) do
+  def export(%__MODULE__{} = file, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       file.query_builder
       |> QB.select("export")
@@ -92,7 +92,7 @@ defmodule Dagger.File do
 
   @doc "Retrieves this file with its name set to the given name."
   @spec with_name(t(), String.t()) :: Dagger.File.t()
-  def with_name(%__MODULE__{} = file, name) do
+  def with_name(%__MODULE__{} = file, name) when is_binary(name) do
     query_builder =
       file.query_builder |> QB.select("withName") |> QB.put_arg("name", name)
 
@@ -104,7 +104,7 @@ defmodule Dagger.File do
 
   @doc "Retrieves this file with its created/modified timestamps set to the given time."
   @spec with_timestamps(t(), integer()) :: Dagger.File.t()
-  def with_timestamps(%__MODULE__{} = file, timestamp) do
+  def with_timestamps(%__MODULE__{} = file, timestamp) when is_integer(timestamp) do
     query_builder =
       file.query_builder |> QB.select("withTimestamps") |> QB.put_arg("timestamp", timestamp)
 

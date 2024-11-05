@@ -13,7 +13,7 @@ defmodule Dagger.GitRepository do
 
   @doc "Returns details of a branch."
   @spec branch(t(), String.t()) :: Dagger.GitRef.t()
-  def branch(%__MODULE__{} = git_repository, name) do
+  def branch(%__MODULE__{} = git_repository, name) when is_binary(name) do
     query_builder =
       git_repository.query_builder |> QB.select("branch") |> QB.put_arg("name", name)
 
@@ -25,7 +25,7 @@ defmodule Dagger.GitRepository do
 
   @doc "Returns details of a commit."
   @spec commit(t(), String.t()) :: Dagger.GitRef.t()
-  def commit(%__MODULE__{} = git_repository, id) do
+  def commit(%__MODULE__{} = git_repository, id) when is_binary(id) do
     query_builder =
       git_repository.query_builder |> QB.select("commit") |> QB.put_arg("id", id)
 
@@ -58,7 +58,7 @@ defmodule Dagger.GitRepository do
 
   @doc "Returns details of a ref."
   @spec ref(t(), String.t()) :: Dagger.GitRef.t()
-  def ref(%__MODULE__{} = git_repository, name) do
+  def ref(%__MODULE__{} = git_repository, name) when is_binary(name) do
     query_builder =
       git_repository.query_builder |> QB.select("ref") |> QB.put_arg("name", name)
 
@@ -70,7 +70,7 @@ defmodule Dagger.GitRepository do
 
   @doc "Returns details of a tag."
   @spec tag(t(), String.t()) :: Dagger.GitRef.t()
-  def tag(%__MODULE__{} = git_repository, name) do
+  def tag(%__MODULE__{} = git_repository, name) when is_binary(name) do
     query_builder =
       git_repository.query_builder |> QB.select("tag") |> QB.put_arg("name", name)
 

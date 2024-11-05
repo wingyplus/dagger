@@ -225,7 +225,7 @@ defmodule Dagger.Module do
 
   @doc "Retrieves the module with the given description"
   @spec with_description(t(), String.t()) :: Dagger.Module.t()
-  def with_description(%__MODULE__{} = module, description) do
+  def with_description(%__MODULE__{} = module, description) when is_binary(description) do
     query_builder =
       module.query_builder
       |> QB.select("withDescription")

@@ -97,7 +97,7 @@ defmodule Dagger.Container do
   Mounts are included.
   """
   @spec directory(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = container, path, optional_args \\ []) do
+  def directory(%__MODULE__{} = container, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("directory")
@@ -121,7 +121,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves the value of the specified environment variable."
   @spec env_variable(t(), String.t()) :: {:ok, String.t() | nil} | {:error, term()}
-  def env_variable(%__MODULE__{} = container, name) do
+  def env_variable(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("envVariable") |> QB.put_arg("name", name)
 
@@ -210,7 +210,7 @@ defmodule Dagger.Container do
           {:media_types, Dagger.ImageMediaTypes.t() | nil},
           {:expand, boolean() | nil}
         ]) :: {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = container, path, optional_args \\ []) do
+  def export(%__MODULE__{} = container, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("export")
@@ -259,7 +259,7 @@ defmodule Dagger.Container do
   Mounts are included.
   """
   @spec file(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.File.t()
-  def file(%__MODULE__{} = container, path, optional_args \\ []) do
+  def file(%__MODULE__{} = container, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("file")
@@ -274,7 +274,7 @@ defmodule Dagger.Container do
 
   @doc "Initializes this container from a pulled base image."
   @spec from(t(), String.t()) :: Dagger.Container.t()
-  def from(%__MODULE__{} = container, address) do
+  def from(%__MODULE__{} = container, address) when is_binary(address) do
     query_builder =
       container.query_builder |> QB.select("from") |> QB.put_arg("address", address)
 
@@ -319,7 +319,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves the value of the specified label."
   @spec label(t(), String.t()) :: {:ok, String.t() | nil} | {:error, term()}
-  def label(%__MODULE__{} = container, name) do
+  def label(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("label") |> QB.put_arg("name", name)
 
@@ -376,7 +376,7 @@ defmodule Dagger.Container do
           {:forced_compression, Dagger.ImageLayerCompression.t() | nil},
           {:media_types, Dagger.ImageMediaTypes.t() | nil}
         ]) :: {:ok, String.t()} | {:error, term()}
-  def publish(%__MODULE__{} = container, address, optional_args \\ []) do
+  def publish(%__MODULE__{} = container, address, optional_args \\ []) when is_binary(address) do
     query_builder =
       container.query_builder
       |> QB.select("publish")
@@ -508,7 +508,8 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container plus the given OCI anotation."
   @spec with_annotation(t(), String.t(), String.t()) :: Dagger.Container.t()
-  def with_annotation(%__MODULE__{} = container, name, value) do
+  def with_annotation(%__MODULE__{} = container, name, value)
+      when is_binary(name) and is_binary(value) do
     query_builder =
       container.query_builder
       |> QB.select("withAnnotation")
@@ -562,7 +563,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_directory(%__MODULE__{} = container, path, directory, optional_args \\ []) do
+  def with_directory(%__MODULE__{} = container, path, directory, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withDirectory")
@@ -598,7 +600,8 @@ defmodule Dagger.Container do
   @doc "Retrieves this container plus the given environment variable."
   @spec with_env_variable(t(), String.t(), String.t(), [{:expand, boolean() | nil}]) ::
           Dagger.Container.t()
-  def with_env_variable(%__MODULE__{} = container, name, value, optional_args \\ []) do
+  def with_env_variable(%__MODULE__{} = container, name, value, optional_args \\ [])
+      when is_binary(name) and is_binary(value) do
     query_builder =
       container.query_builder
       |> QB.select("withEnvVariable")
@@ -662,7 +665,8 @@ defmodule Dagger.Container do
           {:description, String.t() | nil},
           {:experimental_skip_healthcheck, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_exposed_port(%__MODULE__{} = container, port, optional_args \\ []) do
+  def with_exposed_port(%__MODULE__{} = container, port, optional_args \\ [])
+      when is_integer(port) do
     query_builder =
       container.query_builder
       |> QB.select("withExposedPort")
@@ -686,7 +690,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_file(%__MODULE__{} = container, path, source, optional_args \\ []) do
+  def with_file(%__MODULE__{} = container, path, source, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withFile")
@@ -708,7 +713,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_files(%__MODULE__{} = container, path, sources, optional_args \\ []) do
+  def with_files(%__MODULE__{} = container, path, sources, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withFiles")
@@ -738,7 +744,8 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container plus the given label."
   @spec with_label(t(), String.t(), String.t()) :: Dagger.Container.t()
-  def with_label(%__MODULE__{} = container, name, value) do
+  def with_label(%__MODULE__{} = container, name, value)
+      when is_binary(name) and is_binary(value) do
     query_builder =
       container.query_builder
       |> QB.select("withLabel")
@@ -758,7 +765,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_mounted_cache(%__MODULE__{} = container, path, cache, optional_args \\ []) do
+  def with_mounted_cache(%__MODULE__{} = container, path, cache, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withMountedCache")
@@ -780,7 +788,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_mounted_directory(%__MODULE__{} = container, path, source, optional_args \\ []) do
+  def with_mounted_directory(%__MODULE__{} = container, path, source, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withMountedDirectory")
@@ -800,7 +809,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_mounted_file(%__MODULE__{} = container, path, source, optional_args \\ []) do
+  def with_mounted_file(%__MODULE__{} = container, path, source, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withMountedFile")
@@ -821,7 +831,8 @@ defmodule Dagger.Container do
           {:mode, integer() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_mounted_secret(%__MODULE__{} = container, path, source, optional_args \\ []) do
+  def with_mounted_secret(%__MODULE__{} = container, path, source, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withMountedSecret")
@@ -840,7 +851,8 @@ defmodule Dagger.Container do
   @doc "Retrieves this container plus a temporary directory mounted at the given path. Any writes will be ephemeral to a single withExec call; they will not be persisted to subsequent withExecs."
   @spec with_mounted_temp(t(), String.t(), [{:size, integer() | nil}, {:expand, boolean() | nil}]) ::
           Dagger.Container.t()
-  def with_mounted_temp(%__MODULE__{} = container, path, optional_args \\ []) do
+  def with_mounted_temp(%__MODULE__{} = container, path, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withMountedTemp")
@@ -860,7 +872,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_new_file(%__MODULE__{} = container, path, contents, optional_args \\ []) do
+  def with_new_file(%__MODULE__{} = container, path, contents, optional_args \\ [])
+      when is_binary(path) and is_binary(contents) do
     query_builder =
       container.query_builder
       |> QB.select("withNewFile")
@@ -878,7 +891,8 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container with a registry authentication for a given address."
   @spec with_registry_auth(t(), String.t(), String.t(), Dagger.Secret.t()) :: Dagger.Container.t()
-  def with_registry_auth(%__MODULE__{} = container, address, username, secret) do
+  def with_registry_auth(%__MODULE__{} = container, address, username, secret)
+      when is_binary(address) and is_binary(username) do
     query_builder =
       container.query_builder
       |> QB.select("withRegistryAuth")
@@ -908,7 +922,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container plus an env variable containing the given secret."
   @spec with_secret_variable(t(), String.t(), Dagger.Secret.t()) :: Dagger.Container.t()
-  def with_secret_variable(%__MODULE__{} = container, name, secret) do
+  def with_secret_variable(%__MODULE__{} = container, name, secret) when is_binary(name) do
     query_builder =
       container.query_builder
       |> QB.select("withSecretVariable")
@@ -931,7 +945,7 @@ defmodule Dagger.Container do
   The service dependency will also convey to any files or directories produced by the container.
   """
   @spec with_service_binding(t(), String.t(), Dagger.Service.t()) :: Dagger.Container.t()
-  def with_service_binding(%__MODULE__{} = container, alias, service) do
+  def with_service_binding(%__MODULE__{} = container, alias, service) when is_binary(alias) do
     query_builder =
       container.query_builder
       |> QB.select("withServiceBinding")
@@ -949,7 +963,8 @@ defmodule Dagger.Container do
           {:owner, String.t() | nil},
           {:expand, boolean() | nil}
         ]) :: Dagger.Container.t()
-  def with_unix_socket(%__MODULE__{} = container, path, source, optional_args \\ []) do
+  def with_unix_socket(%__MODULE__{} = container, path, source, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withUnixSocket")
@@ -966,7 +981,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container with a different command user."
   @spec with_user(t(), String.t()) :: Dagger.Container.t()
-  def with_user(%__MODULE__{} = container, name) do
+  def with_user(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("withUser") |> QB.put_arg("name", name)
 
@@ -978,7 +993,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container with a different working directory."
   @spec with_workdir(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.Container.t()
-  def with_workdir(%__MODULE__{} = container, path, optional_args \\ []) do
+  def with_workdir(%__MODULE__{} = container, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withWorkdir")
@@ -993,7 +1008,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container minus the given OCI annotation."
   @spec without_annotation(t(), String.t()) :: Dagger.Container.t()
-  def without_annotation(%__MODULE__{} = container, name) do
+  def without_annotation(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("withoutAnnotation") |> QB.put_arg("name", name)
 
@@ -1017,7 +1032,8 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container with the directory at the given path removed."
   @spec without_directory(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.Container.t()
-  def without_directory(%__MODULE__{} = container, path, optional_args \\ []) do
+  def without_directory(%__MODULE__{} = container, path, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withoutDirectory")
@@ -1046,7 +1062,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container minus the given environment variable."
   @spec without_env_variable(t(), String.t()) :: Dagger.Container.t()
-  def without_env_variable(%__MODULE__{} = container, name) do
+  def without_env_variable(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("withoutEnvVariable") |> QB.put_arg("name", name)
 
@@ -1059,7 +1075,8 @@ defmodule Dagger.Container do
   @doc "Unexpose a previously exposed port."
   @spec without_exposed_port(t(), integer(), [{:protocol, Dagger.NetworkProtocol.t() | nil}]) ::
           Dagger.Container.t()
-  def without_exposed_port(%__MODULE__{} = container, port, optional_args \\ []) do
+  def without_exposed_port(%__MODULE__{} = container, port, optional_args \\ [])
+      when is_integer(port) do
     query_builder =
       container.query_builder
       |> QB.select("withoutExposedPort")
@@ -1074,7 +1091,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container with the file at the given path removed."
   @spec without_file(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.Container.t()
-  def without_file(%__MODULE__{} = container, path, optional_args \\ []) do
+  def without_file(%__MODULE__{} = container, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withoutFile")
@@ -1120,7 +1137,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container minus the given environment label."
   @spec without_label(t(), String.t()) :: Dagger.Container.t()
-  def without_label(%__MODULE__{} = container, name) do
+  def without_label(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("withoutLabel") |> QB.put_arg("name", name)
 
@@ -1132,7 +1149,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container after unmounting everything at the given path."
   @spec without_mount(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.Container.t()
-  def without_mount(%__MODULE__{} = container, path, optional_args \\ []) do
+  def without_mount(%__MODULE__{} = container, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withoutMount")
@@ -1147,7 +1164,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container without the registry authentication of a given address."
   @spec without_registry_auth(t(), String.t()) :: Dagger.Container.t()
-  def without_registry_auth(%__MODULE__{} = container, address) do
+  def without_registry_auth(%__MODULE__{} = container, address) when is_binary(address) do
     query_builder =
       container.query_builder
       |> QB.select("withoutRegistryAuth")
@@ -1161,7 +1178,7 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container minus the given environment variable containing the secret."
   @spec without_secret_variable(t(), String.t()) :: Dagger.Container.t()
-  def without_secret_variable(%__MODULE__{} = container, name) do
+  def without_secret_variable(%__MODULE__{} = container, name) when is_binary(name) do
     query_builder =
       container.query_builder |> QB.select("withoutSecretVariable") |> QB.put_arg("name", name)
 
@@ -1173,7 +1190,8 @@ defmodule Dagger.Container do
 
   @doc "Retrieves this container with a previously added Unix socket removed."
   @spec without_unix_socket(t(), String.t(), [{:expand, boolean() | nil}]) :: Dagger.Container.t()
-  def without_unix_socket(%__MODULE__{} = container, path, optional_args \\ []) do
+  def without_unix_socket(%__MODULE__{} = container, path, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       container.query_builder
       |> QB.select("withoutUnixSocket")

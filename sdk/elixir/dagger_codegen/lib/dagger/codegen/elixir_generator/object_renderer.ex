@@ -66,7 +66,9 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
       ?\n,
       "def #{fun_name}(",
       render_function_args(module_var, required_args, optional_args),
-      ") do",
+      ") ",
+      render_function_guard(required_args),
+      " do",
       ?\n,
       "  query_builder = ",
       ?\n,
@@ -317,6 +319,29 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
 
   def render_function_optional_args(_args) do
     ", optional_args \\\\ []"
+  end
+
+  def render_function_guard(required_args) do
+    guard =
+      required_args
+      |> Enum.filter(&(TypeRef.is_scalar?(&1.type) and not TypeRef.id_type?(&1.type)))
+      |> Enum.map_intersperse(" and ", fn arg ->
+        guard_fun =
+          case arg.type.of_type.name do
+            "String" -> "is_binary"
+            "Int" -> "is_integer"
+            "Float" -> "is_float"
+            "Boolean" -> "is_boolean"
+            _ -> "is_binary"
+          end
+
+        [guard_fun, ?(, Formatter.format_var_name(arg.name), ?)]
+      end)
+
+    case guard do
+      [] -> []
+      guard -> ["when ", guard]
+    end
   end
 
   def render_put_arg(arg) do

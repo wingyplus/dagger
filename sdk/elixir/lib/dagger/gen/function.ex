@@ -94,7 +94,8 @@ defmodule Dagger.Function do
           {:ignore, [String.t()]},
           {:source_map, Dagger.SourceMapID.t() | nil}
         ]) :: Dagger.Function.t()
-  def with_arg(%__MODULE__{} = function, name, type_def, optional_args \\ []) do
+  def with_arg(%__MODULE__{} = function, name, type_def, optional_args \\ [])
+      when is_binary(name) do
     query_builder =
       function.query_builder
       |> QB.select("withArg")
@@ -114,7 +115,7 @@ defmodule Dagger.Function do
 
   @doc "Returns the function with the given doc string."
   @spec with_description(t(), String.t()) :: Dagger.Function.t()
-  def with_description(%__MODULE__{} = function, description) do
+  def with_description(%__MODULE__{} = function, description) when is_binary(description) do
     query_builder =
       function.query_builder
       |> QB.select("withDescription")

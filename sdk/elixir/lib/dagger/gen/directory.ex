@@ -52,7 +52,7 @@ defmodule Dagger.Directory do
 
   @doc "Retrieves a directory at the given path."
   @spec directory(t(), String.t()) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = directory, path) do
+  def directory(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("directory") |> QB.put_arg("path", path)
 
@@ -106,7 +106,7 @@ defmodule Dagger.Directory do
   @doc "Writes the contents of the directory to a path on the host."
   @spec export(t(), String.t(), [{:wipe, boolean() | nil}]) ::
           {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = directory, path, optional_args \\ []) do
+  def export(%__MODULE__{} = directory, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("export")
@@ -118,7 +118,7 @@ defmodule Dagger.Directory do
 
   @doc "Retrieves a file at the given path."
   @spec file(t(), String.t()) :: Dagger.File.t()
-  def file(%__MODULE__{} = directory, path) do
+  def file(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("file") |> QB.put_arg("path", path)
 
@@ -130,7 +130,7 @@ defmodule Dagger.Directory do
 
   @doc "Returns a list of files and directories that matche the given pattern."
   @spec glob(t(), String.t()) :: {:ok, [String.t()]} | {:error, term()}
-  def glob(%__MODULE__{} = directory, pattern) do
+  def glob(%__MODULE__{} = directory, pattern) when is_binary(pattern) do
     query_builder =
       directory.query_builder |> QB.select("glob") |> QB.put_arg("pattern", pattern)
 
@@ -194,7 +194,8 @@ defmodule Dagger.Directory do
           {:exclude, [String.t()]},
           {:include, [String.t()]}
         ]) :: Dagger.Directory.t()
-  def with_directory(%__MODULE__{} = directory_, path, directory, optional_args \\ []) do
+  def with_directory(%__MODULE__{} = directory_, path, directory, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       directory_.query_builder
       |> QB.select("withDirectory")
@@ -212,7 +213,8 @@ defmodule Dagger.Directory do
   @doc "Retrieves this directory plus the contents of the given file copied to the given path."
   @spec with_file(t(), String.t(), Dagger.File.t(), [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_file(%__MODULE__{} = directory, path, source, optional_args \\ []) do
+  def with_file(%__MODULE__{} = directory, path, source, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("withFile")
@@ -229,7 +231,8 @@ defmodule Dagger.Directory do
   @doc "Retrieves this directory plus the contents of the given files copied to the given path."
   @spec with_files(t(), String.t(), [Dagger.FileID.t()], [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_files(%__MODULE__{} = directory, path, sources, optional_args \\ []) do
+  def with_files(%__MODULE__{} = directory, path, sources, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("withFiles")
@@ -246,7 +249,8 @@ defmodule Dagger.Directory do
   @doc "Retrieves this directory plus a new directory created at the given path."
   @spec with_new_directory(t(), String.t(), [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_new_directory(%__MODULE__{} = directory, path, optional_args \\ []) do
+  def with_new_directory(%__MODULE__{} = directory, path, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("withNewDirectory")
@@ -262,7 +266,8 @@ defmodule Dagger.Directory do
   @doc "Retrieves this directory plus a new file written at the given path."
   @spec with_new_file(t(), String.t(), String.t(), [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_new_file(%__MODULE__{} = directory, path, contents, optional_args \\ []) do
+  def with_new_file(%__MODULE__{} = directory, path, contents, optional_args \\ [])
+      when is_binary(path) and is_binary(contents) do
     query_builder =
       directory.query_builder
       |> QB.select("withNewFile")
@@ -278,7 +283,7 @@ defmodule Dagger.Directory do
 
   @doc "Retrieves this directory with all file/dir timestamps set to the given time."
   @spec with_timestamps(t(), integer()) :: Dagger.Directory.t()
-  def with_timestamps(%__MODULE__{} = directory, timestamp) do
+  def with_timestamps(%__MODULE__{} = directory, timestamp) when is_integer(timestamp) do
     query_builder =
       directory.query_builder |> QB.select("withTimestamps") |> QB.put_arg("timestamp", timestamp)
 
@@ -290,7 +295,7 @@ defmodule Dagger.Directory do
 
   @doc "Retrieves this directory with the directory at the given path removed."
   @spec without_directory(t(), String.t()) :: Dagger.Directory.t()
-  def without_directory(%__MODULE__{} = directory, path) do
+  def without_directory(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("withoutDirectory") |> QB.put_arg("path", path)
 
@@ -302,7 +307,7 @@ defmodule Dagger.Directory do
 
   @doc "Retrieves this directory with the file at the given path removed."
   @spec without_file(t(), String.t()) :: Dagger.Directory.t()
-  def without_file(%__MODULE__{} = directory, path) do
+  def without_file(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("withoutFile") |> QB.put_arg("path", path)
 
