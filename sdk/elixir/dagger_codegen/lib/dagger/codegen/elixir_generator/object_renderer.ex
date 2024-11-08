@@ -9,6 +9,8 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
   alias Dagger.Codegen.Introspection.Types.InputValue
   alias Dagger.Codegen.Introspection.Types.Type
   alias Dagger.Codegen.Introspection.Types.TypeRef
+  alias Dagger.Codegen.Introspection.Directives
+  alias Dagger.Codegen.Introspection.Directives.SourceMap
 
   @doc """
   Render object type into module.
@@ -35,14 +37,14 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
       ?\n,
       for field <- type.fields do
         [
-          render_function(type, field, module_var),
+          render_function(type, field, module_var, Directives.source_map(field)),
           ?\n
         ]
       end
     ]
   end
 
-  def render_function(type, field, module_var) do
+  def render_function(type, field, module_var, source_map) do
     fun_name = Formatter.format_function_name(field.name)
     {optional_args, required_args} = Enum.split_with(field.args, &InputValue.is_optional?/1)
 
@@ -57,26 +59,39 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
         module_var
       end
 
+    deprecated = Renderer.render_deprecated(field)
+    doc = Renderer.render_doc(field)
+    typespec = render_spec(type, field, required_args, optional_args)
+    args = render_function_args(module_var, required_args, optional_args)
+    source_map_comment = render_source_map_comment(source_map)
+    query_chain = render_query_builder_chain(field, module_var, required_args, optional_args)
+    return_value = render_return_value(type, field, module_var)
+
     [
-      Renderer.render_deprecated(field),
+      deprecated,
       ?\n,
-      Renderer.render_doc(field),
+      doc,
       ?\n,
-      render_spec(type, field, required_args, optional_args),
+      typespec,
       ?\n,
-      "def #{fun_name}(",
-      render_function_args(module_var, required_args, optional_args),
-      ") do",
+      ["def ", fun_name, ?(, args, ?), " do", source_map_comment],
       ?\n,
-      "  query_builder = ",
+      [
+        "  query_builder = ",
+        ?\n,
+        query_chain
+      ],
       ?\n,
-      render_query_builder_chain(field, module_var, required_args, optional_args),
-      ?\n,
-      render_return_value(type, field, module_var),
+      return_value,
       ?\n,
       "end"
     ]
   end
+
+  def render_source_map_comment(nil), do: ""
+
+  def render_source_map_comment(%SourceMap{} = sm),
+    do: ["# ", sm.module, " (", sm.filename, ?:, sm.line, ?)]
 
   def render_return_value(type, field, module_var) do
     cond do

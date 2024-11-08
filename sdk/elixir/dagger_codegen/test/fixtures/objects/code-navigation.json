@@ -1,0 +1,31 @@
+{
+  "kind": "OBJECT",
+  "name": "Query",
+  "description": "The root of the DAG.",
+  "fields": [
+    {
+      "name": "wolfi",
+      "description": "",
+      "type": {
+        "kind": "NON_NULL",
+        "ofType": { "kind": "OBJECT", "name": "Wolfi" }
+      },
+      "args": [],
+      "isDeprecated": false,
+      "deprecationReason": "",
+      "directives": [
+        {
+          "name": "sourceMap",
+          "args": [
+            { "name": "module", "value": "wolfi" },
+            { "name": "filename", "value": "modules/wolfi/main.go" },
+            { "name": "line", "value": "10" },
+            { "name": "column", "value": "6" }
+          ]
+        }
+      ]
+    }
+  ],
+  "interfaces": [],
+  "directives": []
+}

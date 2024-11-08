@@ -4,6 +4,7 @@ defmodule Dagger.Codegen.Introspection.Types.Type do
     :enum_values,
     :fields,
     :input_fields,
+    :directives,
     :kind,
     :name
   ]
@@ -28,6 +29,7 @@ defmodule Dagger.Codegen.Introspection.Types.Type do
           type["inputFields"] || [],
           &Dagger.Codegen.Introspection.Types.InputValue.from_map/1
         ),
+      directives: type["directives"] || [],
       kind: kind,
       name: name
     }

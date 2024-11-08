@@ -179,6 +179,7 @@ func (m *ElixirSdk) GenerateCode(introspectionJSON *dagger.File) *dagger.Directo
 			"--outdir", "/gen",
 			"--introspection", schemaPath,
 		}).
+		WithFile("/gen/schema.json", introspectionJSON).
 		Directory("/gen")
 }
 
