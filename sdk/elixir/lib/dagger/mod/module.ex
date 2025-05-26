@@ -10,15 +10,25 @@ defmodule Dagger.Mod.Module do
   Define a Dagger module from the given module.
   """
   @spec define(Dagger.Client.t(), module()) :: Dagger.Module.t()
-  def define(dag, module) when is_struct(dag, Dagger.Client) and is_atom(module) do
+  def define(%Dagger.Client{} = dag, root_module) when is_atom(root_module) do
+    modules = traverse(root_module)
+
     dag
     |> Dagger.Client.module()
-    |> Dagger.Module.with_object(define_object(dag, module))
-    |> maybe_with_description(Object.get_module_doc(module))
+    |> define_objects(dag, modules)
+    |> maybe_with_description(Object.get_module_doc(root_module))
   end
 
   defp maybe_with_description(module, nil), do: module
   defp maybe_with_description(module, doc), do: Dagger.Module.with_description(module, doc)
+
+  defp define_objects(dag_module, dag, modules) do
+    modules
+    |> Enum.reduce(dag_module, fn module, dag_module ->
+      dag_module
+      |> Dagger.Module.with_object(define_object(dag, module))
+    end)
+  end
 
   defp define_object(dag, module) do
     mod_name = module.__object__(:name)
@@ -61,4 +71,22 @@ defmodule Dagger.Mod.Module do
 
   defp init?({:init, _}), do: true
   defp init?({_, _}), do: false
+
+  # Traverse all functions to find objects that it depends on.
+  defp traverse(root_module) do
+    traverse(root_module, root_module.__object__(:functions), [root_module])
+  end
+
+  defp traverse(_root_module, [], modules), do: Enum.uniq(modules)
+
+  defp traverse(root_module, [%FunctionDef{return: type} | funs], modules) do
+    case Module.split(type) do
+      # User define object
+      [^root_module | _] ->
+        traverse(root_module, funs, modules ++ [type] ++ traverse(type))
+
+      _ ->
+        traverse(root_module, funs, modules)
+    end
+  end
 end
