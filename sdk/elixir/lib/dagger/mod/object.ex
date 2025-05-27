@@ -264,13 +264,13 @@ defmodule Dagger.Mod.Object do
     end
   end
 
-  defp compile_typespec!({:integer, _, []}), do: :integer
-  defp compile_typespec!({:float, _, []}), do: :float
-  defp compile_typespec!({:boolean, _, []}), do: :boolean
+  defp compile_typespec!({:integer, _, []}), do: {:primitive, :integer}
+  defp compile_typespec!({:float, _, []}), do: {:primitive, :float}
+  defp compile_typespec!({:boolean, _, []}), do: {:primitive, :boolean}
 
   ## String
 
-  defp compile_typespec!({:binary, _, []}), do: :string
+  defp compile_typespec!({:binary, _, []}), do: {:primitive, :string}
 
   defp compile_typespec!(
          {{:., _,
@@ -279,11 +279,11 @@ defmodule Dagger.Mod.Object do
              :t
            ]}, _, []}
        ) do
-    :string
+    {:primitive, :string}
   end
 
   defp compile_typespec!({{:., _, [{:__aliases__, _, module}, :t]}, _, []}) do
-    Module.concat(module)
+    {:module, Module.concat(module)}
   end
 
   ## List

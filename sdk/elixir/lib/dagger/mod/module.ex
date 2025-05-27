@@ -79,7 +79,9 @@ defmodule Dagger.Mod.Module do
 
   defp traverse(_root_module, [], modules), do: Enum.uniq(modules)
 
-  defp traverse(root_module, [%FunctionDef{return: type} | funs], modules) do
+  defp traverse(root_module, [{_name, %FunctionDef{return: type}} | funs], modules) do
+    dbg(type)
+
     case Module.split(type) do
       # User define object
       [^root_module | _] ->

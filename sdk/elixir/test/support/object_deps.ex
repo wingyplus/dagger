@@ -1,5 +1,8 @@
-defmodule B do
+defmodule A.B do
   use Dagger.Mod.Object, name: "B"
+
+  object do
+  end
 
   defn c() :: String.t() do
     "Hello"
@@ -10,7 +13,7 @@ defmodule A do
   use Dagger.Mod.Object, name: "A"
 
   defn b() :: B.t() do
-    %B{}
+    %A.B{}
   end
 
   defn c() :: integer() do

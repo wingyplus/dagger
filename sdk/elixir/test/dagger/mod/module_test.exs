@@ -196,6 +196,11 @@ defmodule Dagger.Mod.ModuleTest do
       assert {:ok, "ConstructorFunction"} =
                return_type_def |> Dagger.TypeDef.as_object() |> Dagger.ObjectTypeDef.name()
     end
+
+    test "register child objects", %{dag: dag} do
+      assert {:ok, module} = Module.define(dag, A) |> Dagger.Module.sync()
+      assert {:ok, [a, b]} = Dagger.Module.objects(module)
+    end
   end
 
   defp root_object(dag, module) do
