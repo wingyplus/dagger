@@ -26,6 +26,7 @@ defmodule Dagger.Core.GraphQLClient do
       []
       |> with_basic_auth(session_token)
       |> with_traceparent()
+      |> with_otel()
 
     with {:ok, request} <- json.encode(request),
          {:ok, status, result} <- client.request(url, request, headers, timeout: timeout),
@@ -55,5 +56,9 @@ defmodule Dagger.Core.GraphQLClient do
       traceparent ->
         [{"traceparent", traceparent} | headers]
     end
+  end
+
+  defp with_otel(headers) do
+    :otel_propagator_text_map.inject(headers)
   end
 end

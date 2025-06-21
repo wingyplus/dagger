@@ -21,23 +21,26 @@ otlp_traces_endpoint =
 otlp_traces_protocol = System.get_env("OTEL_EXPORTER_OTLP_TRACES_PROTOCOL") || "http/protobuf"
 
 config :opentelemetry,
+  text_map_propagators: [:baggage, :trace_context],
   resource: %{
-    service: %{name: "dagger.io/sdk.elixir"},
+    service: %{name: "dagger-elixir-sdk"},
     schema_url: "https://opentelemetry.io/schemas/1.21.0"
-  },
-  processors: [
-    {Dagger.Telemetry.LiveProcessor,
-     %{
-       bsp_scheduled_delay_ms: nearly_immediate_ms,
-       exporter: {
-         :opentelemetry_exporter,
-         %{
-            protocol: otlp_protocol |> normalize_protocol.(),
-            endpoints: [otlp_endpoint <> "/v1/traces"]
-         }
-       }
-     }}
-  ]
+  }
+
+# TODO: uncomment me.
+# processors: [
+#   {Dagger.Telemetry.LiveProcessor,
+#    %{
+#      bsp_scheduled_delay_ms: nearly_immediate_ms,
+#      exporter: {
+#        :opentelemetry_exporter,
+#        %{
+#          protocol: otlp_protocol |> normalize_protocol.(),
+#          endpoints: [otlp_endpoint <> "/v1/traces"]
+#        }
+#      }
+#    }}
+# ]
 
 config :opentelemetry_exporter,
   otlp_traces_endpoint: otlp_traces_endpoint <> "/v1/traces",

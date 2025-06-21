@@ -191,19 +191,21 @@ defmodule ElixirSdkDev do
     ctx = Dagger.Telemetry.Propagator.extract(traceparent)
     Dagger.Telemetry.Propagator.inject(ctx)
 
-    Task.async_stream(versions, fn version ->
-      Tracer.with_span ctx, "running unit tests with node #{versions |> hd()}", %{} do
-
-        dag()
-        |> Dagger.Client.container()
-        |> Dagger.Container.from("node:#{version}")
-        |> Dagger.Container.with_directory("/src", source)
-        |> Dagger.Container.with_workdir("/src")
-        |> Dagger.Container.with_exec(~w"npm install")
-        |> Dagger.Container.with_exec(~w"npm run test:unit run")
-        |> Dagger.Container.sync()
-      end
+    versions
+    |> Enum.map(fn version ->
+      Task.async(fn ->
+        Tracer.with_span ctx, "running unit tests with node #{version}", %{} do
+          dag()
+          |> Dagger.Client.container()
+          |> Dagger.Container.from("node:#{version}")
+          |> Dagger.Container.with_directory("/src", source)
+          |> Dagger.Container.with_workdir("/src")
+          |> Dagger.Container.with_exec(~w"npm install")
+          |> Dagger.Container.with_exec(~w"npm run test:unit run")
+          |> Dagger.Container.sync()
+        end
+      end)
     end)
-    |> Enum.all?()
+    |> Task.await_many(:infinity)
   end
 end
