@@ -1,4 +1,4 @@
-defmodule Template.MixProject do
+defmodule HelloWithChecks.MixProject do
   use Mix.Project
 
   def project do
