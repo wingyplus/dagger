@@ -108,7 +108,9 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
       ?\n,
       "def #{fun_name}(",
       render_function_args(module_var, required_args, optional_args),
-      ") do",
+      ")",
+      render_guard_clause(required_args),
+      " do",
       ?\n,
       "  query_builder = ",
       ?\n,
@@ -335,6 +337,51 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
     ]
   end
 
+  @doc """
+  Render guard clause for required arguments.
+  """
+  def render_guard_clause(required_args) do
+    guards =
+      required_args
+      |> Enum.reject(&convert_id?/1)
+      |> Enum.flat_map(fn arg ->
+        case guard_for_type(arg.type) do
+          nil -> []
+          guard_fn -> [{Formatter.format_var_name(arg.name), guard_fn}]
+        end
+      end)
+
+    case guards do
+      [] ->
+        ""
+
+      guards ->
+        [
+          " when ",
+          guards
+          |> Enum.map_intersperse(" and ", fn {var_name, guard_fn} ->
+            "#{guard_fn}(#{var_name})"
+          end)
+        ]
+    end
+  end
+
+  defp guard_for_type(%TypeRef{kind: "NON_NULL", of_type: type}), do: guard_for_type(type)
+
+  defp guard_for_type(%TypeRef{kind: "SCALAR", name: name}) do
+    case name do
+      "String" -> "is_binary"
+      "Int" -> "is_integer"
+      "Float" -> "is_float"
+      "Boolean" -> "is_boolean"
+      _ -> nil
+    end
+  end
+
+  defp guard_for_type(%TypeRef{kind: "ENUM"}), do: "is_atom"
+  defp guard_for_type(%TypeRef{kind: "LIST"}), do: "is_list"
+  defp guard_for_type(_), do: nil
+
   def render_function_args(module_var, required_args, optional_args) do
     [
       "%__MODULE__{} =",
@@ -351,8 +398,23 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
   def render_function_required_args(args) do
     [
       ~c",",
-      Enum.map_intersperse(args, ~c",", &Formatter.format_var_name(&1.name))
+      Enum.map_intersperse(args, ~c",", &render_function_required_arg/1)
     ]
+  end
+
+  defp render_function_required_arg(arg) do
+    var_name = Formatter.format_var_name(arg.name)
+
+    if convert_id?(arg) do
+      module_name =
+        arg.type.of_type.name
+        |> String.trim_trailing("ID")
+        |> Formatter.format_module()
+
+      ["%#{module_name}{} = ", var_name]
+    else
+      var_name
+    end
   end
 
   def render_function_optional_args([]), do: ""
