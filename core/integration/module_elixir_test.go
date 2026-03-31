@@ -205,6 +205,48 @@ func (ElixirSuite) TestReqAdapter(ctx context.Context, t *testctx.T) {
 	require.Equal(t, "hello-from-req-adapter\n", out)
 }
 
+func (ElixirSuite) TestGenerator(ctx context.Context, t *testctx.T) {
+	t.Run("generator function is callable", func(ctx context.Context, t *testctx.T) {
+		c := connect(ctx, t)
+
+		out, err := elixirModule(t, c, "generator").
+			With(daggerCall("generate-file", "entries")).
+			Stdout(ctx)
+
+		require.NoError(t, err)
+		require.Contains(t, out, "generated.txt")
+	})
+
+	t.Run("multiple generators are independently callable", func(ctx context.Context, t *testctx.T) {
+		c := connect(ctx, t)
+
+		mod := elixirModule(t, c, "generator")
+
+		out1, err := mod.
+			With(daggerCall("generate-file", "entries")).
+			Stdout(ctx)
+		require.NoError(t, err)
+		require.Contains(t, out1, "generated.txt")
+
+		out2, err := mod.
+			With(daggerCall("generate-other-file", "entries")).
+			Stdout(ctx)
+		require.NoError(t, err)
+		require.Contains(t, out2, "other.txt")
+	})
+
+	t.Run("non-generator function still works", func(ctx context.Context, t *testctx.T) {
+		c := connect(ctx, t)
+
+		out, err := elixirModule(t, c, "generator").
+			With(daggerCall("hello")).
+			Stdout(ctx)
+
+		require.NoError(t, err)
+		require.Equal(t, "hello", out)
+	})
+}
+
 func elixirModule(t *testctx.T, c *dagger.Client, moduleName string) *dagger.Container {
 	t.Helper()
 	modSrc, err := filepath.Abs(filepath.Join("./testdata/modules/elixir", moduleName))

@@ -127,6 +127,21 @@ defmodule Dagger.Function do
   end
 
   @doc """
+  Marks the function as a generator.
+  """
+  @spec with_generator(t()) :: Dagger.Function.t()
+  def with_generator(%__MODULE__{} = function) do
+    query_builder =
+      function.query_builder
+      |> QB.select("withGenerator")
+
+    %Dagger.Function{
+      query_builder: query_builder,
+      client: function.client
+    }
+  end
+
+  @doc """
   Returns the function with the given doc string.
   """
   @spec with_description(t(), String.t()) :: Dagger.Function.t()

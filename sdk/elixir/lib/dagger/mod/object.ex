@@ -112,6 +112,7 @@ defmodule Dagger.Mod.Object do
 
       Module.register_attribute(__MODULE__, :function, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :field, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :generate, persist: false)
 
       # Get an object name
       def __object__(:name), do: unquote(name)
@@ -152,8 +153,10 @@ defmodule Dagger.Mod.Object do
                  %Dagger.Mod.Object.FunctionDef{
                    self: unquote(has_self?),
                    args: unquote(arg_defs),
-                   return: unquote(return_def)
+                   return: unquote(return_def),
+                   generate: !!Module.get_attribute(__MODULE__, :generate)
                  }}
+      Module.put_attribute(__MODULE__, :generate, nil)
       unquote(Defn.define(name, args, return, block))
     end
   end

@@ -67,4 +67,24 @@ defmodule ObjectMod do
   defn mix_self_and_args(_self, name: String.t()) :: Dagger.Void.t() do
     name
   end
+
+  @generate true
+  defn my_generator(self) :: Dagger.Directory.t() do
+    dag()
+    |> Dagger.Client.directory()
+  end
+
+  defn non_generator() :: String.t() do
+    "not a generator"
+  end
+
+  @generate true
+  defn another_generator() :: Dagger.Directory.t() do
+    dag()
+    |> Dagger.Client.directory()
+  end
+
+  defn after_generators() :: String.t() do
+    "still not a generator"
+  end
 end

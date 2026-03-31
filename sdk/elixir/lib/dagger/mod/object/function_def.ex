@@ -4,7 +4,7 @@ defmodule Dagger.Mod.Object.FunctionDef do
   # A function declaration from `Dagger.Mod.Object.defn/2`.
 
   @enforce_keys [:self, :args, :return]
-  defstruct @enforce_keys
+  defstruct @enforce_keys ++ [generate: false]
 
   @doc """
   Convert a `fun_def` into Dagger Function.
@@ -17,6 +17,7 @@ defmodule Dagger.Mod.Object.FunctionDef do
       Dagger.Mod.Object.TypeDef.define(dag, fun_def.return)
     )
     |> maybe_with_description(Dagger.Mod.Object.get_function_doc(module, name))
+    |> maybe_with_generator(fun_def.generate)
     |> with_args(fun_def.args, dag)
   end
 
@@ -36,6 +37,9 @@ defmodule Dagger.Mod.Object.FunctionDef do
 
   defp maybe_with_description(function, nil), do: function
   defp maybe_with_description(function, doc), do: Dagger.Function.with_description(function, doc)
+
+  defp maybe_with_generator(function, false), do: function
+  defp maybe_with_generator(function, true), do: Dagger.Function.with_generator(function)
 
   defp with_args(fun, args, dag) do
     args
