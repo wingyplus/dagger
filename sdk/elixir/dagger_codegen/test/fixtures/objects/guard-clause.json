@@ -1,0 +1,146 @@
+{
+  "description": "Environment variable.",
+  "enumValues": [],
+  "fields": [
+    {
+      "args": [
+        {
+          "defaultValue": null,
+          "description": "The environment variable name.",
+          "name": "name",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            }
+          }
+        },
+        {
+          "defaultValue": null,
+          "description": "The environment variable value.",
+          "name": "value",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            }
+          }
+        }
+      ],
+      "deprecationReason": null,
+      "description": "Set an environment variable.",
+      "isDeprecated": false,
+      "name": "withEnvVariable",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "OBJECT",
+          "name": "Container",
+          "ofType": null
+        }
+      }
+    },
+    {
+      "args": [
+        {
+          "defaultValue": null,
+          "description": "The secret to set.",
+          "name": "secret",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "SecretID",
+              "ofType": null
+            }
+          }
+        },
+        {
+          "defaultValue": null,
+          "description": "The environment variable name.",
+          "name": "name",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            }
+          }
+        }
+      ],
+      "deprecationReason": null,
+      "description": "Set an environment variable from a secret.",
+      "isDeprecated": false,
+      "name": "withSecretVariable",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "OBJECT",
+          "name": "Container",
+          "ofType": null
+        }
+      }
+    },
+    {
+      "args": [
+        {
+          "defaultValue": null,
+          "description": "Number of retries.",
+          "name": "count",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            }
+          }
+        },
+        {
+          "defaultValue": null,
+          "description": "Enable focus.",
+          "name": "focus",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            }
+          }
+        }
+      ],
+      "deprecationReason": null,
+      "description": "Set retry options.",
+      "isDeprecated": false,
+      "name": "withRetry",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "OBJECT",
+          "name": "Container",
+          "ofType": null
+        }
+      }
+    }
+  ],
+  "inputFields": [],
+  "interfaces": [],
+  "kind": "OBJECT",
+  "name": "Container",
+  "possibleTypes": []
+}
