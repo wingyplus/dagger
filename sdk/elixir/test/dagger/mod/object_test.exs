@@ -111,6 +111,30 @@ defmodule Dagger.Mod.ObjectTest do
                    name: [{:ignore, nil}, {:default_path, nil}, {:doc, nil}, {:type, :string}]
                  ],
                  return: Dagger.Void
+               },
+               my_generator: %FunctionDef{
+                 self: true,
+                 args: [],
+                 return: Dagger.Directory,
+                 generate: true
+               },
+               non_generator: %FunctionDef{
+                 self: false,
+                 args: [],
+                 return: :string,
+                 generate: false
+               },
+               another_generator: %FunctionDef{
+                 self: false,
+                 args: [],
+                 return: Dagger.Directory,
+                 generate: true
+               },
+               after_generators: %FunctionDef{
+                 self: false,
+                 args: [],
+                 return: :string,
+                 generate: false
                }
              ]
     end
