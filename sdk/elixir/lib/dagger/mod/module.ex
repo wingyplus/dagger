@@ -25,12 +25,24 @@ defmodule Dagger.Mod.Module do
   defp define(dag, dag_module, module) do
     case module.__kind__() do
       :object ->
-        dag_module
-        |> Dagger.Module.with_object(define_object(dag, module))
+        type_def =
+          if function_exported?(module, :__register__, 1) do
+            module.__register__(dag)
+          else
+            define_object(dag, module)
+          end
+
+        Dagger.Module.with_object(dag_module, type_def)
 
       :enum ->
-        dag_module
-        |> Dagger.Module.with_enum(define_enum(dag, module))
+        type_def =
+          if function_exported?(module, :__register__, 1) do
+            module.__register__(dag)
+          else
+            define_enum(dag, module)
+          end
+
+        Dagger.Module.with_enum(dag_module, type_def)
     end
   end
 

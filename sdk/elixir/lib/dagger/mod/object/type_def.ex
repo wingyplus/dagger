@@ -58,7 +58,11 @@ defmodule Dagger.Mod.Object.TypeDef do
         end
 
       :enum ->
-        Dagger.Mod.Module.define_enum(dag, module)
+        if function_exported?(module, :__register__, 1) do
+          module.__register__(dag)
+        else
+          Dagger.Mod.Module.define_enum(dag, module)
+        end
     end
   end
 end

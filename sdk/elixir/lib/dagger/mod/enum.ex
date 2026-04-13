@@ -24,6 +24,11 @@ defmodule Dagger.Mod.Enum do
 
     {:ok, ast_type} = Code.string_to_quoted("@type t() :: #{atoms}")
 
+    # Pre-compute member registration data at compile time.
+    # Each entry: {display_value_string, doc_or_nil}
+    member_data = Enum.map(values, &extract_member_data/1)
+    camelized_name = Dagger.Mod.Helper.camelize(name)
+
     quote do
       use Dagger.Core.Base, kind: :enum, name: unquote(name)
 
@@ -33,7 +38,41 @@ defmodule Dagger.Mod.Enum do
       def __enum__(:keys), do: unquote(values)
 
       unquote_splicing(functions)
+
+      @doc false
+      def __register__(dag) do
+        Enum.reduce(
+          unquote(Macro.escape(member_data)),
+          dag |> Dagger.Client.type_def() |> Dagger.TypeDef.with_enum(unquote(camelized_name)),
+          fn {val, doc}, td ->
+            opts = [value: val] ++ if(doc, do: [description: doc], else: [])
+            Dagger.TypeDef.with_enum_member(td, val, opts)
+          end
+        )
+      end
+
+      @doc false
+      def __dependencies__(), do: []
     end
+  end
+
+  # Extract {value_string, doc_or_nil} from an enum value spec.
+  # value_string matches what Atom.to_string/1 gives for the key atom,
+  # matching the behaviour of the existing define_enum/2 in Dagger.Mod.Module.
+  defp extract_member_data(key) when is_atom(key) do
+    {Atom.to_string(key), nil}
+  end
+
+  defp extract_member_data({key, options}) when is_atom(key) and is_list(options) do
+    {Atom.to_string(key), options[:doc]}
+  end
+
+  defp extract_member_data({key, value}) when is_atom(key) and is_binary(value) do
+    {Atom.to_string(key), nil}
+  end
+
+  defp extract_member_data({key, {_value, options}}) when is_atom(key) and is_list(options) do
+    {Atom.to_string(key), options[:doc]}
   end
 
   defp defenum(key) when is_atom(key) do
