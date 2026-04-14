@@ -1,0 +1,42 @@
+{
+  "description": "A fixture to exercise guard rendering on enum arguments.",
+  "enumValues": [],
+  "fields": [
+    {
+      "args": [
+        {
+          "defaultValue": null,
+          "description": "Cache sharing strategy",
+          "name": "sharing",
+          "type": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "ENUM",
+              "name": "CacheSharingMode",
+              "ofType": null
+            }
+          }
+        }
+      ],
+      "deprecationReason": null,
+      "description": "Exercise enum guard.",
+      "isDeprecated": false,
+      "name": "withSharing",
+      "type": {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": {
+          "kind": "OBJECT",
+          "name": "CacheVolume",
+          "ofType": null
+        }
+      }
+    }
+  ],
+  "inputFields": [],
+  "interfaces": [],
+  "kind": "OBJECT",
+  "name": "CacheVolume",
+  "possibleTypes": []
+}

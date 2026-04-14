@@ -108,7 +108,9 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
       ?\n,
       "def #{fun_name}(",
       render_function_args(module_var, required_args, optional_args),
-      ") do",
+      ")",
+      render_function_guards(required_args),
+      " do",
       ?\n,
       "  query_builder = ",
       ?\n,
@@ -351,14 +353,97 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
   def render_function_required_args(args) do
     [
       ~c",",
-      Enum.map_intersperse(args, ~c",", &Formatter.format_var_name(&1.name))
+      Enum.map_intersperse(args, ~c",", &render_function_required_arg/1)
     ]
+  end
+
+  @doc """
+  Render a single required argument, using a pattern match when the argument
+  is an object (or an ID of an object) so that the caller is forced to pass
+  the correct struct.
+  """
+  def render_function_required_arg(arg) do
+    var_name = Formatter.format_var_name(arg.name)
+
+    cond do
+      TypeRef.is_object?(arg.type) ->
+        module = arg.type |> TypeRef.object_name() |> Formatter.format_module()
+        ["%", module, "{} = ", var_name]
+
+      arg.name != "id" and TypeRef.id_type?(arg.type) ->
+        module =
+          arg.type
+          |> TypeRef.scalar_name()
+          |> String.trim_trailing("ID")
+          |> Formatter.format_module()
+
+        ["%", module, "{} = ", var_name]
+
+      true ->
+        var_name
+    end
   end
 
   def render_function_optional_args([]), do: ""
 
   def render_function_optional_args(_args) do
     ", optional_args \\\\ []"
+  end
+
+  @doc """
+  Render `when` guard clauses from the required arguments.
+
+  Emits `is_binary/1`, `is_integer/1`, `is_float/1`, `is_boolean/1`,
+  `is_list/1` or `is_atom/1` guards depending on the argument type. Object
+  and ID-of-object arguments are enforced through pattern matching in the
+  function head instead (see `render_function_required_arg/1`) so no guard
+  is emitted for them.
+  """
+  def render_function_guards(required_args) do
+    guards =
+      required_args
+      |> Enum.flat_map(&arg_guard/1)
+
+    case guards do
+      [] ->
+        []
+
+      _ ->
+        [" when ", Enum.intersperse(guards, " and ")]
+    end
+  end
+
+  defp arg_guard(arg) do
+    var_name = Formatter.format_var_name(arg.name)
+
+    cond do
+      TypeRef.is_object?(arg.type) ->
+        []
+
+      arg.name != "id" and TypeRef.id_type?(arg.type) ->
+        []
+
+      TypeRef.is_list?(arg.type) ->
+        [["is_list(", var_name, ")"]]
+
+      TypeRef.is_enum?(arg.type) ->
+        [["is_atom(", var_name, ")"]]
+
+      true ->
+        case TypeRef.scalar_name(arg.type) do
+          "String" -> [["is_binary(", var_name, ")"]]
+          "Int" -> [["is_integer(", var_name, ")"]]
+          "Float" -> [["is_float(", var_name, ")"]]
+          "Boolean" -> [["is_boolean(", var_name, ")"]]
+          # DateTime is represented as the `DateTime` struct and cannot be
+          # guarded safely here.
+          "DateTime" -> []
+          # Every other scalar (e.g. JSON, Platform, custom ID scalars) is
+          # represented as a string in the wire format.
+          name when is_binary(name) -> [["is_binary(", var_name, ")"]]
+          _ -> []
+        end
+    end
   end
 
   def render_put_arg(arg) do

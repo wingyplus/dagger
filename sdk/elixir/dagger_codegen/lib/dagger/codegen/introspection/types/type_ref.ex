@@ -70,4 +70,28 @@ defmodule Dagger.Codegen.Introspection.Types.TypeRef do
   def id_type?(%__MODULE__{kind: "NON_NULL", of_type: type}), do: id_type?(type)
   def id_type?(%__MODULE__{kind: "SCALAR", name: name}), do: String.ends_with?(name, "ID")
   def id_type?(_), do: false
+
+  def is_object?(%__MODULE__{kind: "NON_NULL", of_type: type}), do: is_object?(type)
+  def is_object?(%__MODULE__{kind: "OBJECT"}), do: true
+  def is_object?(_), do: false
+
+  def is_list?(%__MODULE__{kind: "NON_NULL", of_type: type}), do: is_list?(type)
+  def is_list?(%__MODULE__{kind: "LIST"}), do: true
+  def is_list?(_), do: false
+
+  @doc """
+  Return the underlying scalar name (e.g. `"String"`, `"Int"`) of the type
+  reference, or `nil` if the type is not a scalar.
+  """
+  def scalar_name(%__MODULE__{kind: "NON_NULL", of_type: type}), do: scalar_name(type)
+  def scalar_name(%__MODULE__{kind: "SCALAR", name: name}), do: name
+  def scalar_name(_), do: nil
+
+  @doc """
+  Return the underlying object name of the type reference, or `nil` if the
+  type is not an object.
+  """
+  def object_name(%__MODULE__{kind: "NON_NULL", of_type: type}), do: object_name(type)
+  def object_name(%__MODULE__{kind: "OBJECT", name: name}), do: name
+  def object_name(_), do: nil
 end
