@@ -58,7 +58,7 @@ defmodule Dagger.Mod.Object.TypeDef do
         end
 
       :enum ->
-        Dagger.Mod.Module.define_enum(dag, module)
+        module.__register__(dag)
     end
   end
 end
