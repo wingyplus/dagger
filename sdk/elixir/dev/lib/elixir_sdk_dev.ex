@@ -27,6 +27,7 @@ defmodule ElixirSdkDev do
               "!.formatter.exs",
               "!.credo.exs",
               "!lib/**/*.ex",
+              "!bench/**/*.exs",
               "!test/support/**/*.ex",
               "!test/**/*.exs",
               "!runtime/go.mod",
@@ -119,6 +120,19 @@ defmodule ElixirSdkDev do
     |> with_codegen()
     |> Dagger.Container.with_exec(~w"mix test")
     |> sync()
+  end
+
+  @doc """
+  Run SDK benchmarks and return the captured output.
+  """
+  defn bench(self, script: {String.t(), default: "bench/query_builder_bench.exs"}) ::
+         String.t() do
+    {:ok, output} =
+      self.container
+      |> Dagger.Container.with_exec(["mix", "run", script])
+      |> Dagger.Container.stdout()
+
+    output
   end
 
   @doc """
