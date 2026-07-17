@@ -50,7 +50,9 @@ type ElixirSdk {
     modSource: ModuleSource!,
     introspectionJson: File!,
   ): GeneratedCode! {
-    generatedCode(common(modSource, introspectionJson).directory(modSourceDirPath))
+    generatedCode(
+      common(modSource, introspectionJson).directory(modSourceDirPath),
+    )
       .withVCSGeneratedPaths([genDir + "/**"])
       .withVCSIgnoredPaths([
         genDir,
@@ -97,7 +99,11 @@ type ElixirSdk {
     let moduleName = toElixirModuleName(modName)
     let template = currentModule.source.directory("template")
     let mixExs = renderTemplate(template.file("mix.exs").contents, appName, moduleName)
-    let mainModule = renderTemplate(template.file("lib/template.ex").contents, appName, moduleName)
+    let mainModule = renderTemplate(
+      template.file("lib/template.ex").contents,
+      appName,
+      moduleName,
+    )
     let readme = renderTemplate(template.file("README.md").contents, appName, moduleName)
 
     ctr
