@@ -49,7 +49,7 @@ defmodule Dagger.File do
   Change the owner of the file recursively.
   """
   @spec chown(t(), String.t()) :: Dagger.File.t()
-  def chown(%__MODULE__{} = file, owner) do
+  def chown(%__MODULE__{} = file, owner) when is_binary(owner) do
     query_builder =
       file.query_builder |> QB.select("chown") |> QB.put_arg("owner", owner)
 
@@ -93,7 +93,7 @@ defmodule Dagger.File do
   """
   @spec export(t(), String.t(), [{:allow_parent_dir_path, boolean() | nil}]) ::
           {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = file, path, optional_args \\ []) do
+  def export(%__MODULE__{} = file, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       file.query_builder
       |> QB.select("export")
@@ -142,7 +142,7 @@ defmodule Dagger.File do
           {:paths, [String.t()]},
           {:globs, [String.t()]}
         ]) :: {:ok, [Dagger.SearchResult.t()]} | {:error, term()}
-  def search(%__MODULE__{} = file, pattern, optional_args \\ []) do
+  def search(%__MODULE__{} = file, pattern, optional_args \\ []) when is_binary(pattern) do
     query_builder =
       file.query_builder
       |> QB.select("search")
@@ -224,7 +224,7 @@ defmodule Dagger.File do
   Retrieves this file with its name set to the given name.
   """
   @spec with_name(t(), String.t()) :: Dagger.File.t()
-  def with_name(%__MODULE__{} = file, name) do
+  def with_name(%__MODULE__{} = file, name) when is_binary(name) do
     query_builder =
       file.query_builder |> QB.select("withName") |> QB.put_arg("name", name)
 
@@ -249,7 +249,8 @@ defmodule Dagger.File do
           {:all, boolean() | nil},
           {:first_from, integer() | nil}
         ]) :: Dagger.File.t()
-  def with_replaced(%__MODULE__{} = file, search, replacement, optional_args \\ []) do
+  def with_replaced(%__MODULE__{} = file, search, replacement, optional_args \\ [])
+      when is_binary(search) and is_binary(replacement) do
     query_builder =
       file.query_builder
       |> QB.select("withReplaced")
@@ -268,7 +269,7 @@ defmodule Dagger.File do
   Retrieves this file with its created/modified timestamps set to the given time.
   """
   @spec with_timestamps(t(), integer()) :: Dagger.File.t()
-  def with_timestamps(%__MODULE__{} = file, timestamp) do
+  def with_timestamps(%__MODULE__{} = file, timestamp) when is_integer(timestamp) do
     query_builder =
       file.query_builder |> QB.select("withTimestamps") |> QB.put_arg("timestamp", timestamp)
 

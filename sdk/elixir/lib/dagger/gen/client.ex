@@ -19,7 +19,7 @@ defmodule Dagger.Client do
   initialize an address to load directories, containers, secrets or other object types.
   """
   @spec address(t(), String.t()) :: Dagger.Address.t()
-  def address(%__MODULE__{} = client, value) do
+  def address(%__MODULE__{} = client, value) when is_binary(value) do
     query_builder =
       client.query_builder |> QB.select("address") |> QB.put_arg("value", value)
 
@@ -37,7 +37,7 @@ defmodule Dagger.Client do
           {:sharing, Dagger.CacheSharingMode.t() | nil},
           {:owner, String.t() | nil}
         ]) :: Dagger.CacheVolume.t()
-  def cache_volume(%__MODULE__{} = client, key, optional_args \\ []) do
+  def cache_volume(%__MODULE__{} = client, key, optional_args \\ []) when is_binary(key) do
     query_builder =
       client.query_builder
       |> QB.select("cacheVolume")
@@ -281,7 +281,7 @@ defmodule Dagger.Client do
   Create a new error.
   """
   @spec error(t(), String.t()) :: Dagger.Error.t()
-  def error(%__MODULE__{} = client, message) do
+  def error(%__MODULE__{} = client, message) when is_binary(message) do
     query_builder =
       client.query_builder |> QB.select("error") |> QB.put_arg("message", message)
 
@@ -295,7 +295,8 @@ defmodule Dagger.Client do
   Creates a file with the specified contents.
   """
   @spec file(t(), String.t(), String.t(), [{:permissions, integer() | nil}]) :: Dagger.File.t()
-  def file(%__MODULE__{} = client, name, contents, optional_args \\ []) do
+  def file(%__MODULE__{} = client, name, contents, optional_args \\ [])
+      when is_binary(name) and is_binary(contents) do
     query_builder =
       client.query_builder
       |> QB.select("file")
@@ -313,7 +314,8 @@ defmodule Dagger.Client do
   Creates a function.
   """
   @spec function(t(), String.t(), Dagger.TypeDef.t()) :: Dagger.Function.t()
-  def function(%__MODULE__{} = client, name, return_type) do
+  def function(%__MODULE__{} = client, name, return_type)
+      when is_binary(name) and is_struct(return_type, Dagger.TypeDef) do
     query_builder =
       client.query_builder
       |> QB.select("function")
@@ -330,7 +332,7 @@ defmodule Dagger.Client do
   Create a code generation result, given a directory containing the generated code.
   """
   @spec generated_code(t(), Dagger.Directory.t()) :: Dagger.GeneratedCode.t()
-  def generated_code(%__MODULE__{} = client, code) do
+  def generated_code(%__MODULE__{} = client, code) when is_struct(code, Dagger.Directory) do
     query_builder =
       client.query_builder
       |> QB.select("generatedCode")
@@ -354,7 +356,7 @@ defmodule Dagger.Client do
           {:http_auth_header, Dagger.Secret.t() | nil},
           {:experimental_service_host, Dagger.Service.t() | nil}
         ]) :: Dagger.GitRepository.t()
-  def git(%__MODULE__{} = client, url, optional_args \\ []) do
+  def git(%__MODULE__{} = client, url, optional_args \\ []) when is_binary(url) do
     query_builder =
       client.query_builder
       |> QB.select("git")
@@ -421,7 +423,7 @@ defmodule Dagger.Client do
           {:auth_header, Dagger.Secret.t() | nil},
           {:experimental_service_host, Dagger.Service.t() | nil}
         ]) :: Dagger.File.t()
-  def http(%__MODULE__{} = client, url, optional_args \\ []) do
+  def http(%__MODULE__{} = client, url, optional_args \\ []) when is_binary(url) do
     query_builder =
       client.query_builder
       |> QB.select("http")
@@ -516,7 +518,8 @@ defmodule Dagger.Client do
           {:allow_not_exists, boolean() | nil},
           {:require_kind, Dagger.ModuleSourceKind.t() | nil}
         ]) :: Dagger.ModuleSource.t()
-  def module_source(%__MODULE__{} = client, ref_string, optional_args \\ []) do
+  def module_source(%__MODULE__{} = client, ref_string, optional_args \\ [])
+      when is_binary(ref_string) do
     query_builder =
       client.query_builder
       |> QB.select("moduleSource")
@@ -536,7 +539,7 @@ defmodule Dagger.Client do
   Load any object by its ID.
   """
   @spec node(t(), String.t()) :: Dagger.Node.t() | nil
-  def node(%__MODULE__{} = client, id) do
+  def node(%__MODULE__{} = client, id) when is_binary(id) do
     query_builder =
       client.query_builder |> QB.select("node") |> QB.put_arg("id", id)
 
@@ -550,7 +553,7 @@ defmodule Dagger.Client do
   Load a GraphQL introspection schema for merging.
   """
   @spec schema(t(), Dagger.JSON.t()) :: Dagger.Schema.t()
-  def schema(%__MODULE__{} = client, json) do
+  def schema(%__MODULE__{} = client, json) when is_binary(json) do
     query_builder =
       client.query_builder |> QB.select("schema") |> QB.put_arg("json", json)
 
@@ -564,7 +567,7 @@ defmodule Dagger.Client do
   Creates a new secret.
   """
   @spec secret(t(), String.t(), [{:cache_key, String.t() | nil}]) :: Dagger.Secret.t()
-  def secret(%__MODULE__{} = client, uri, optional_args \\ []) do
+  def secret(%__MODULE__{} = client, uri, optional_args \\ []) when is_binary(uri) do
     query_builder =
       client.query_builder
       |> QB.select("secret")
@@ -583,7 +586,8 @@ defmodule Dagger.Client do
   The plaintext value is limited to a size of 128000 bytes.
   """
   @spec set_secret(t(), String.t(), String.t()) :: Dagger.Secret.t()
-  def set_secret(%__MODULE__{} = client, name, plaintext) do
+  def set_secret(%__MODULE__{} = client, name, plaintext)
+      when is_binary(name) and is_binary(plaintext) do
     query_builder =
       client.query_builder
       |> QB.select("setSecret")
@@ -600,7 +604,8 @@ defmodule Dagger.Client do
   Creates source map metadata.
   """
   @spec source_map(t(), String.t(), integer(), integer()) :: Dagger.SourceMap.t()
-  def source_map(%__MODULE__{} = client, filename, line, column) do
+  def source_map(%__MODULE__{} = client, filename, line, column)
+      when is_binary(filename) and is_integer(line) and is_integer(column) do
     query_builder =
       client.query_builder
       |> QB.select("sourceMap")

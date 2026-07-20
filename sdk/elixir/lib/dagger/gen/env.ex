@@ -23,7 +23,7 @@ defmodule Dagger.Env do
   > "Checks API is highly experimental and may be removed or replaced entirely."
   """
   @spec check(t(), String.t()) :: Dagger.Check.t()
-  def check(%__MODULE__{} = env, name) do
+  def check(%__MODULE__{} = env, name) when is_binary(name) do
     query_builder =
       env.query_builder |> QB.select("check") |> QB.put_arg("name", name)
 
@@ -70,7 +70,7 @@ defmodule Dagger.Env do
   Retrieves an input binding by name
   """
   @spec input(t(), String.t()) :: Dagger.Binding.t()
-  def input(%__MODULE__{} = env, name) do
+  def input(%__MODULE__{} = env, name) when is_binary(name) do
     query_builder =
       env.query_builder |> QB.select("input") |> QB.put_arg("name", name)
 
@@ -107,7 +107,7 @@ defmodule Dagger.Env do
   Retrieves an output binding by name
   """
   @spec output(t(), String.t()) :: Dagger.Binding.t()
-  def output(%__MODULE__{} = env, name) do
+  def output(%__MODULE__{} = env, name) when is_binary(name) do
     query_builder =
       env.query_builder |> QB.select("output") |> QB.put_arg("name", name)
 
@@ -164,7 +164,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Address in the environment
   """
   @spec with_address_input(t(), String.t(), Dagger.Address.t(), String.t()) :: Dagger.Env.t()
-  def with_address_input(%__MODULE__{} = env, name, value, description) do
+  def with_address_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Address) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withAddressInput")
@@ -182,7 +183,8 @@ defmodule Dagger.Env do
   Declare a desired Address output to be assigned in the environment
   """
   @spec with_address_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_address_output(%__MODULE__{} = env, name, description) do
+  def with_address_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withAddressOutput")
@@ -200,7 +202,8 @@ defmodule Dagger.Env do
   """
   @spec with_cache_volume_input(t(), String.t(), Dagger.CacheVolume.t(), String.t()) ::
           Dagger.Env.t()
-  def with_cache_volume_input(%__MODULE__{} = env, name, value, description) do
+  def with_cache_volume_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.CacheVolume) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCacheVolumeInput")
@@ -218,7 +221,8 @@ defmodule Dagger.Env do
   Declare a desired CacheVolume output to be assigned in the environment
   """
   @spec with_cache_volume_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_cache_volume_output(%__MODULE__{} = env, name, description) do
+  def with_cache_volume_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCacheVolumeOutput")
@@ -235,7 +239,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Changeset in the environment
   """
   @spec with_changeset_input(t(), String.t(), Dagger.Changeset.t(), String.t()) :: Dagger.Env.t()
-  def with_changeset_input(%__MODULE__{} = env, name, value, description) do
+  def with_changeset_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Changeset) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withChangesetInput")
@@ -253,7 +258,8 @@ defmodule Dagger.Env do
   Declare a desired Changeset output to be assigned in the environment
   """
   @spec with_changeset_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_changeset_output(%__MODULE__{} = env, name, description) do
+  def with_changeset_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withChangesetOutput")
@@ -271,7 +277,8 @@ defmodule Dagger.Env do
   """
   @spec with_check_group_input(t(), String.t(), Dagger.CheckGroup.t(), String.t()) ::
           Dagger.Env.t()
-  def with_check_group_input(%__MODULE__{} = env, name, value, description) do
+  def with_check_group_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.CheckGroup) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCheckGroupInput")
@@ -289,7 +296,8 @@ defmodule Dagger.Env do
   Declare a desired CheckGroup output to be assigned in the environment
   """
   @spec with_check_group_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_check_group_output(%__MODULE__{} = env, name, description) do
+  def with_check_group_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCheckGroupOutput")
@@ -306,7 +314,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Check in the environment
   """
   @spec with_check_input(t(), String.t(), Dagger.Check.t(), String.t()) :: Dagger.Env.t()
-  def with_check_input(%__MODULE__{} = env, name, value, description) do
+  def with_check_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Check) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCheckInput")
@@ -324,7 +333,8 @@ defmodule Dagger.Env do
   Declare a desired Check output to be assigned in the environment
   """
   @spec with_check_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_check_output(%__MODULE__{} = env, name, description) do
+  def with_check_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCheckOutput")
@@ -341,7 +351,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Cloud in the environment
   """
   @spec with_cloud_input(t(), String.t(), Dagger.Cloud.t(), String.t()) :: Dagger.Env.t()
-  def with_cloud_input(%__MODULE__{} = env, name, value, description) do
+  def with_cloud_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Cloud) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCloudInput")
@@ -359,7 +370,8 @@ defmodule Dagger.Env do
   Declare a desired Cloud output to be assigned in the environment
   """
   @spec with_cloud_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_cloud_output(%__MODULE__{} = env, name, description) do
+  def with_cloud_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCloudOutput")
@@ -376,7 +388,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Container in the environment
   """
   @spec with_container_input(t(), String.t(), Dagger.Container.t(), String.t()) :: Dagger.Env.t()
-  def with_container_input(%__MODULE__{} = env, name, value, description) do
+  def with_container_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Container) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withContainerInput")
@@ -394,7 +407,8 @@ defmodule Dagger.Env do
   Declare a desired Container output to be assigned in the environment
   """
   @spec with_container_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_container_output(%__MODULE__{} = env, name, description) do
+  def with_container_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withContainerOutput")
@@ -432,7 +446,9 @@ defmodule Dagger.Env do
           Dagger.CurrentModuleAsSDKClient.t(),
           String.t()
         ) :: Dagger.Env.t()
-  def with_current_module_as_sdk_client_input(%__MODULE__{} = env, name, value, description) do
+  def with_current_module_as_sdk_client_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.CurrentModuleAsSDKClient) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCurrentModuleAsSDKClientInput")
@@ -450,7 +466,8 @@ defmodule Dagger.Env do
   Declare a desired CurrentModuleAsSDKClient output to be assigned in the environment
   """
   @spec with_current_module_as_sdk_client_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_current_module_as_sdk_client_output(%__MODULE__{} = env, name, description) do
+  def with_current_module_as_sdk_client_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCurrentModuleAsSDKClientOutput")
@@ -472,7 +489,9 @@ defmodule Dagger.Env do
           Dagger.CurrentModuleAsSDK.t(),
           String.t()
         ) :: Dagger.Env.t()
-  def with_current_module_as_sdk_input(%__MODULE__{} = env, name, value, description) do
+  def with_current_module_as_sdk_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.CurrentModuleAsSDK) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCurrentModuleAsSDKInput")
@@ -495,7 +514,9 @@ defmodule Dagger.Env do
           Dagger.CurrentModuleAsSDKModule.t(),
           String.t()
         ) :: Dagger.Env.t()
-  def with_current_module_as_sdk_module_input(%__MODULE__{} = env, name, value, description) do
+  def with_current_module_as_sdk_module_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.CurrentModuleAsSDKModule) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCurrentModuleAsSDKModuleInput")
@@ -513,7 +534,8 @@ defmodule Dagger.Env do
   Declare a desired CurrentModuleAsSDKModule output to be assigned in the environment
   """
   @spec with_current_module_as_sdk_module_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_current_module_as_sdk_module_output(%__MODULE__{} = env, name, description) do
+  def with_current_module_as_sdk_module_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCurrentModuleAsSDKModuleOutput")
@@ -530,7 +552,8 @@ defmodule Dagger.Env do
   Declare a desired CurrentModuleAsSDK output to be assigned in the environment
   """
   @spec with_current_module_as_sdk_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_current_module_as_sdk_output(%__MODULE__{} = env, name, description) do
+  def with_current_module_as_sdk_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withCurrentModuleAsSDKOutput")
@@ -547,7 +570,8 @@ defmodule Dagger.Env do
   Create or update a binding of type DiffStat in the environment
   """
   @spec with_diff_stat_input(t(), String.t(), Dagger.DiffStat.t(), String.t()) :: Dagger.Env.t()
-  def with_diff_stat_input(%__MODULE__{} = env, name, value, description) do
+  def with_diff_stat_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.DiffStat) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withDiffStatInput")
@@ -565,7 +589,8 @@ defmodule Dagger.Env do
   Declare a desired DiffStat output to be assigned in the environment
   """
   @spec with_diff_stat_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_diff_stat_output(%__MODULE__{} = env, name, description) do
+  def with_diff_stat_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withDiffStatOutput")
@@ -582,7 +607,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Directory in the environment
   """
   @spec with_directory_input(t(), String.t(), Dagger.Directory.t(), String.t()) :: Dagger.Env.t()
-  def with_directory_input(%__MODULE__{} = env, name, value, description) do
+  def with_directory_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Directory) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withDirectoryInput")
@@ -600,7 +626,8 @@ defmodule Dagger.Env do
   Declare a desired Directory output to be assigned in the environment
   """
   @spec with_directory_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_directory_output(%__MODULE__{} = env, name, description) do
+  def with_directory_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withDirectoryOutput")
@@ -617,7 +644,8 @@ defmodule Dagger.Env do
   Create or update a binding of type EnvFile in the environment
   """
   @spec with_env_file_input(t(), String.t(), Dagger.EnvFile.t(), String.t()) :: Dagger.Env.t()
-  def with_env_file_input(%__MODULE__{} = env, name, value, description) do
+  def with_env_file_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.EnvFile) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withEnvFileInput")
@@ -635,7 +663,8 @@ defmodule Dagger.Env do
   Declare a desired EnvFile output to be assigned in the environment
   """
   @spec with_env_file_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_env_file_output(%__MODULE__{} = env, name, description) do
+  def with_env_file_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withEnvFileOutput")
@@ -652,7 +681,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Env in the environment
   """
   @spec with_env_input(t(), String.t(), Dagger.Env.t(), String.t()) :: Dagger.Env.t()
-  def with_env_input(%__MODULE__{} = env, name, value, description) do
+  def with_env_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Env) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withEnvInput")
@@ -670,7 +700,8 @@ defmodule Dagger.Env do
   Declare a desired Env output to be assigned in the environment
   """
   @spec with_env_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_env_output(%__MODULE__{} = env, name, description) do
+  def with_env_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withEnvOutput")
@@ -687,7 +718,8 @@ defmodule Dagger.Env do
   Create or update a binding of type File in the environment
   """
   @spec with_file_input(t(), String.t(), Dagger.File.t(), String.t()) :: Dagger.Env.t()
-  def with_file_input(%__MODULE__{} = env, name, value, description) do
+  def with_file_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.File) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withFileInput")
@@ -705,7 +737,8 @@ defmodule Dagger.Env do
   Declare a desired File output to be assigned in the environment
   """
   @spec with_file_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_file_output(%__MODULE__{} = env, name, description) do
+  def with_file_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withFileOutput")
@@ -723,7 +756,8 @@ defmodule Dagger.Env do
   """
   @spec with_generator_group_input(t(), String.t(), Dagger.GeneratorGroup.t(), String.t()) ::
           Dagger.Env.t()
-  def with_generator_group_input(%__MODULE__{} = env, name, value, description) do
+  def with_generator_group_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.GeneratorGroup) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGeneratorGroupInput")
@@ -741,7 +775,8 @@ defmodule Dagger.Env do
   Declare a desired GeneratorGroup output to be assigned in the environment
   """
   @spec with_generator_group_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_generator_group_output(%__MODULE__{} = env, name, description) do
+  def with_generator_group_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGeneratorGroupOutput")
@@ -758,7 +793,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Generator in the environment
   """
   @spec with_generator_input(t(), String.t(), Dagger.Generator.t(), String.t()) :: Dagger.Env.t()
-  def with_generator_input(%__MODULE__{} = env, name, value, description) do
+  def with_generator_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Generator) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGeneratorInput")
@@ -776,7 +812,8 @@ defmodule Dagger.Env do
   Declare a desired Generator output to be assigned in the environment
   """
   @spec with_generator_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_generator_output(%__MODULE__{} = env, name, description) do
+  def with_generator_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGeneratorOutput")
@@ -793,7 +830,8 @@ defmodule Dagger.Env do
   Create or update a binding of type GitRef in the environment
   """
   @spec with_git_ref_input(t(), String.t(), Dagger.GitRef.t(), String.t()) :: Dagger.Env.t()
-  def with_git_ref_input(%__MODULE__{} = env, name, value, description) do
+  def with_git_ref_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.GitRef) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGitRefInput")
@@ -811,7 +849,8 @@ defmodule Dagger.Env do
   Declare a desired GitRef output to be assigned in the environment
   """
   @spec with_git_ref_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_git_ref_output(%__MODULE__{} = env, name, description) do
+  def with_git_ref_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGitRefOutput")
@@ -829,7 +868,8 @@ defmodule Dagger.Env do
   """
   @spec with_git_repository_input(t(), String.t(), Dagger.GitRepository.t(), String.t()) ::
           Dagger.Env.t()
-  def with_git_repository_input(%__MODULE__{} = env, name, value, description) do
+  def with_git_repository_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.GitRepository) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGitRepositoryInput")
@@ -847,7 +887,8 @@ defmodule Dagger.Env do
   Declare a desired GitRepository output to be assigned in the environment
   """
   @spec with_git_repository_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_git_repository_output(%__MODULE__{} = env, name, description) do
+  def with_git_repository_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withGitRepositoryOutput")
@@ -864,7 +905,8 @@ defmodule Dagger.Env do
   Create or update a binding of type HTTPState in the environment
   """
   @spec with_http_state_input(t(), String.t(), Dagger.HTTPState.t(), String.t()) :: Dagger.Env.t()
-  def with_http_state_input(%__MODULE__{} = env, name, value, description) do
+  def with_http_state_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.HTTPState) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withHTTPStateInput")
@@ -882,7 +924,8 @@ defmodule Dagger.Env do
   Declare a desired HTTPState output to be assigned in the environment
   """
   @spec with_http_state_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_http_state_output(%__MODULE__{} = env, name, description) do
+  def with_http_state_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withHTTPStateOutput")
@@ -899,7 +942,8 @@ defmodule Dagger.Env do
   Create or update a binding of type JSONValue in the environment
   """
   @spec with_json_value_input(t(), String.t(), Dagger.JSONValue.t(), String.t()) :: Dagger.Env.t()
-  def with_json_value_input(%__MODULE__{} = env, name, value, description) do
+  def with_json_value_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.JSONValue) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withJSONValueInput")
@@ -917,7 +961,8 @@ defmodule Dagger.Env do
   Declare a desired JSONValue output to be assigned in the environment
   """
   @spec with_json_value_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_json_value_output(%__MODULE__{} = env, name, description) do
+  def with_json_value_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withJSONValueOutput")
@@ -935,7 +980,8 @@ defmodule Dagger.Env do
   """
   @spec with_llm_content_block_input(t(), String.t(), Dagger.LLMContentBlock.t(), String.t()) ::
           Dagger.Env.t()
-  def with_llm_content_block_input(%__MODULE__{} = env, name, value, description) do
+  def with_llm_content_block_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.LLMContentBlock) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withLLMContentBlockInput")
@@ -953,7 +999,8 @@ defmodule Dagger.Env do
   Declare a desired LLMContentBlock output to be assigned in the environment
   """
   @spec with_llm_content_block_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_llm_content_block_output(%__MODULE__{} = env, name, description) do
+  def with_llm_content_block_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withLLMContentBlockOutput")
@@ -971,7 +1018,8 @@ defmodule Dagger.Env do
   """
   @spec with_llm_message_input(t(), String.t(), Dagger.LLMMessage.t(), String.t()) ::
           Dagger.Env.t()
-  def with_llm_message_input(%__MODULE__{} = env, name, value, description) do
+  def with_llm_message_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.LLMMessage) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withLLMMessageInput")
@@ -989,7 +1037,8 @@ defmodule Dagger.Env do
   Declare a desired LLMMessage output to be assigned in the environment
   """
   @spec with_llm_message_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_llm_message_output(%__MODULE__{} = env, name, description) do
+  def with_llm_message_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withLLMMessageOutput")
@@ -1008,7 +1057,7 @@ defmodule Dagger.Env do
   Contextual path arguments will be populated using the environment's workspace.
   """
   @spec with_main_module(t(), Dagger.Module.t()) :: Dagger.Env.t()
-  def with_main_module(%__MODULE__{} = env, module) do
+  def with_main_module(%__MODULE__{} = env, module) when is_struct(module, Dagger.Module) do
     query_builder =
       env.query_builder
       |> QB.select("withMainModule")
@@ -1029,7 +1078,7 @@ defmodule Dagger.Env do
   Contextual path arguments will be populated using the environment's workspace.
   """
   @spec with_module(t(), Dagger.Module.t()) :: Dagger.Env.t()
-  def with_module(%__MODULE__{} = env, module) do
+  def with_module(%__MODULE__{} = env, module) when is_struct(module, Dagger.Module) do
     query_builder =
       env.query_builder |> QB.select("withModule") |> QB.put_arg("module", Dagger.ID.id!(module))
 
@@ -1048,7 +1097,9 @@ defmodule Dagger.Env do
           Dagger.ModuleConfigClient.t(),
           String.t()
         ) :: Dagger.Env.t()
-  def with_module_config_client_input(%__MODULE__{} = env, name, value, description) do
+  def with_module_config_client_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.ModuleConfigClient) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withModuleConfigClientInput")
@@ -1066,7 +1117,8 @@ defmodule Dagger.Env do
   Declare a desired ModuleConfigClient output to be assigned in the environment
   """
   @spec with_module_config_client_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_module_config_client_output(%__MODULE__{} = env, name, description) do
+  def with_module_config_client_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withModuleConfigClientOutput")
@@ -1083,7 +1135,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Module in the environment
   """
   @spec with_module_input(t(), String.t(), Dagger.Module.t(), String.t()) :: Dagger.Env.t()
-  def with_module_input(%__MODULE__{} = env, name, value, description) do
+  def with_module_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Module) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withModuleInput")
@@ -1101,7 +1154,8 @@ defmodule Dagger.Env do
   Declare a desired Module output to be assigned in the environment
   """
   @spec with_module_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_module_output(%__MODULE__{} = env, name, description) do
+  def with_module_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withModuleOutput")
@@ -1119,7 +1173,8 @@ defmodule Dagger.Env do
   """
   @spec with_module_source_input(t(), String.t(), Dagger.ModuleSource.t(), String.t()) ::
           Dagger.Env.t()
-  def with_module_source_input(%__MODULE__{} = env, name, value, description) do
+  def with_module_source_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.ModuleSource) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withModuleSourceInput")
@@ -1137,7 +1192,8 @@ defmodule Dagger.Env do
   Declare a desired ModuleSource output to be assigned in the environment
   """
   @spec with_module_source_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_module_source_output(%__MODULE__{} = env, name, description) do
+  def with_module_source_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withModuleSourceOutput")
@@ -1154,7 +1210,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Schema in the environment
   """
   @spec with_schema_input(t(), String.t(), Dagger.Schema.t(), String.t()) :: Dagger.Env.t()
-  def with_schema_input(%__MODULE__{} = env, name, value, description) do
+  def with_schema_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Schema) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSchemaInput")
@@ -1172,7 +1229,8 @@ defmodule Dagger.Env do
   Declare a desired Schema output to be assigned in the environment
   """
   @spec with_schema_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_schema_output(%__MODULE__{} = env, name, description) do
+  def with_schema_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSchemaOutput")
@@ -1190,7 +1248,8 @@ defmodule Dagger.Env do
   """
   @spec with_search_result_input(t(), String.t(), Dagger.SearchResult.t(), String.t()) ::
           Dagger.Env.t()
-  def with_search_result_input(%__MODULE__{} = env, name, value, description) do
+  def with_search_result_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.SearchResult) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSearchResultInput")
@@ -1208,7 +1267,8 @@ defmodule Dagger.Env do
   Declare a desired SearchResult output to be assigned in the environment
   """
   @spec with_search_result_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_search_result_output(%__MODULE__{} = env, name, description) do
+  def with_search_result_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSearchResultOutput")
@@ -1226,7 +1286,8 @@ defmodule Dagger.Env do
   """
   @spec with_search_submatch_input(t(), String.t(), Dagger.SearchSubmatch.t(), String.t()) ::
           Dagger.Env.t()
-  def with_search_submatch_input(%__MODULE__{} = env, name, value, description) do
+  def with_search_submatch_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.SearchSubmatch) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSearchSubmatchInput")
@@ -1244,7 +1305,8 @@ defmodule Dagger.Env do
   Declare a desired SearchSubmatch output to be assigned in the environment
   """
   @spec with_search_submatch_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_search_submatch_output(%__MODULE__{} = env, name, description) do
+  def with_search_submatch_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSearchSubmatchOutput")
@@ -1261,7 +1323,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Secret in the environment
   """
   @spec with_secret_input(t(), String.t(), Dagger.Secret.t(), String.t()) :: Dagger.Env.t()
-  def with_secret_input(%__MODULE__{} = env, name, value, description) do
+  def with_secret_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Secret) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSecretInput")
@@ -1279,7 +1342,8 @@ defmodule Dagger.Env do
   Declare a desired Secret output to be assigned in the environment
   """
   @spec with_secret_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_secret_output(%__MODULE__{} = env, name, description) do
+  def with_secret_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSecretOutput")
@@ -1296,7 +1360,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Service in the environment
   """
   @spec with_service_input(t(), String.t(), Dagger.Service.t(), String.t()) :: Dagger.Env.t()
-  def with_service_input(%__MODULE__{} = env, name, value, description) do
+  def with_service_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Service) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withServiceInput")
@@ -1314,7 +1379,8 @@ defmodule Dagger.Env do
   Declare a desired Service output to be assigned in the environment
   """
   @spec with_service_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_service_output(%__MODULE__{} = env, name, description) do
+  def with_service_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withServiceOutput")
@@ -1331,7 +1397,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Socket in the environment
   """
   @spec with_socket_input(t(), String.t(), Dagger.Socket.t(), String.t()) :: Dagger.Env.t()
-  def with_socket_input(%__MODULE__{} = env, name, value, description) do
+  def with_socket_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Socket) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSocketInput")
@@ -1349,7 +1416,8 @@ defmodule Dagger.Env do
   Declare a desired Socket output to be assigned in the environment
   """
   @spec with_socket_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_socket_output(%__MODULE__{} = env, name, description) do
+  def with_socket_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withSocketOutput")
@@ -1366,7 +1434,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Stat in the environment
   """
   @spec with_stat_input(t(), String.t(), Dagger.Stat.t(), String.t()) :: Dagger.Env.t()
-  def with_stat_input(%__MODULE__{} = env, name, value, description) do
+  def with_stat_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Stat) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withStatInput")
@@ -1384,7 +1453,8 @@ defmodule Dagger.Env do
   Declare a desired Stat output to be assigned in the environment
   """
   @spec with_stat_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_stat_output(%__MODULE__{} = env, name, description) do
+  def with_stat_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withStatOutput")
@@ -1401,7 +1471,8 @@ defmodule Dagger.Env do
   Provides a string input binding to the environment
   """
   @spec with_string_input(t(), String.t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_string_input(%__MODULE__{} = env, name, value, description) do
+  def with_string_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_binary(value) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withStringInput")
@@ -1419,7 +1490,8 @@ defmodule Dagger.Env do
   Declares a desired string output binding
   """
   @spec with_string_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_string_output(%__MODULE__{} = env, name, description) do
+  def with_string_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withStringOutput")
@@ -1436,7 +1508,8 @@ defmodule Dagger.Env do
   Create or update a binding of type UpGroup in the environment
   """
   @spec with_up_group_input(t(), String.t(), Dagger.UpGroup.t(), String.t()) :: Dagger.Env.t()
-  def with_up_group_input(%__MODULE__{} = env, name, value, description) do
+  def with_up_group_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.UpGroup) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withUpGroupInput")
@@ -1454,7 +1527,8 @@ defmodule Dagger.Env do
   Declare a desired UpGroup output to be assigned in the environment
   """
   @spec with_up_group_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_up_group_output(%__MODULE__{} = env, name, description) do
+  def with_up_group_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withUpGroupOutput")
@@ -1471,7 +1545,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Up in the environment
   """
   @spec with_up_input(t(), String.t(), Dagger.Up.t(), String.t()) :: Dagger.Env.t()
-  def with_up_input(%__MODULE__{} = env, name, value, description) do
+  def with_up_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Up) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withUpInput")
@@ -1489,7 +1564,8 @@ defmodule Dagger.Env do
   Declare a desired Up output to be assigned in the environment
   """
   @spec with_up_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_up_output(%__MODULE__{} = env, name, description) do
+  def with_up_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withUpOutput")
@@ -1506,7 +1582,8 @@ defmodule Dagger.Env do
   Returns a new environment with the provided workspace
   """
   @spec with_workspace(t(), Dagger.Directory.t()) :: Dagger.Env.t()
-  def with_workspace(%__MODULE__{} = env, workspace) do
+  def with_workspace(%__MODULE__{} = env, workspace)
+      when is_struct(workspace, Dagger.Directory) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspace")
@@ -1523,7 +1600,8 @@ defmodule Dagger.Env do
   """
   @spec with_workspace_git_input(t(), String.t(), Dagger.WorkspaceGit.t(), String.t()) ::
           Dagger.Env.t()
-  def with_workspace_git_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_git_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.WorkspaceGit) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceGitInput")
@@ -1541,7 +1619,8 @@ defmodule Dagger.Env do
   Declare a desired WorkspaceGit output to be assigned in the environment
   """
   @spec with_workspace_git_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_git_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_git_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceGitOutput")
@@ -1558,7 +1637,8 @@ defmodule Dagger.Env do
   Create or update a binding of type Workspace in the environment
   """
   @spec with_workspace_input(t(), String.t(), Dagger.Workspace.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.Workspace) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceInput")
@@ -1577,7 +1657,9 @@ defmodule Dagger.Env do
   """
   @spec with_workspace_migration_input(t(), String.t(), Dagger.WorkspaceMigration.t(), String.t()) ::
           Dagger.Env.t()
-  def with_workspace_migration_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_migration_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.WorkspaceMigration) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceMigrationInput")
@@ -1595,7 +1677,8 @@ defmodule Dagger.Env do
   Declare a desired WorkspaceMigration output to be assigned in the environment
   """
   @spec with_workspace_migration_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_migration_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_migration_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceMigrationOutput")
@@ -1617,7 +1700,9 @@ defmodule Dagger.Env do
           Dagger.WorkspaceMigrationStep.t(),
           String.t()
         ) :: Dagger.Env.t()
-  def with_workspace_migration_step_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_migration_step_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.WorkspaceMigrationStep) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceMigrationStepInput")
@@ -1635,7 +1720,8 @@ defmodule Dagger.Env do
   Declare a desired WorkspaceMigrationStep output to be assigned in the environment
   """
   @spec with_workspace_migration_step_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_migration_step_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_migration_step_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceMigrationStepOutput")
@@ -1653,7 +1739,8 @@ defmodule Dagger.Env do
   """
   @spec with_workspace_module_input(t(), String.t(), Dagger.WorkspaceModule.t(), String.t()) ::
           Dagger.Env.t()
-  def with_workspace_module_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_module_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.WorkspaceModule) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceModuleInput")
@@ -1671,7 +1758,8 @@ defmodule Dagger.Env do
   Declare a desired WorkspaceModule output to be assigned in the environment
   """
   @spec with_workspace_module_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_module_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_module_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceModuleOutput")
@@ -1693,7 +1781,9 @@ defmodule Dagger.Env do
           Dagger.WorkspaceModuleSetting.t(),
           String.t()
         ) :: Dagger.Env.t()
-  def with_workspace_module_setting_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_module_setting_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.WorkspaceModuleSetting) and
+             is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceModuleSettingInput")
@@ -1711,7 +1801,8 @@ defmodule Dagger.Env do
   Declare a desired WorkspaceModuleSetting output to be assigned in the environment
   """
   @spec with_workspace_module_setting_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_module_setting_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_module_setting_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceModuleSettingOutput")
@@ -1728,7 +1819,8 @@ defmodule Dagger.Env do
   Declare a desired Workspace output to be assigned in the environment
   """
   @spec with_workspace_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceOutput")
@@ -1746,7 +1838,8 @@ defmodule Dagger.Env do
   """
   @spec with_workspace_sdk_input(t(), String.t(), Dagger.WorkspaceSDK.t(), String.t()) ::
           Dagger.Env.t()
-  def with_workspace_sdk_input(%__MODULE__{} = env, name, value, description) do
+  def with_workspace_sdk_input(%__MODULE__{} = env, name, value, description)
+      when is_binary(name) and is_struct(value, Dagger.WorkspaceSDK) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceSDKInput")
@@ -1764,7 +1857,8 @@ defmodule Dagger.Env do
   Declare a desired WorkspaceSDK output to be assigned in the environment
   """
   @spec with_workspace_sdk_output(t(), String.t(), String.t()) :: Dagger.Env.t()
-  def with_workspace_sdk_output(%__MODULE__{} = env, name, description) do
+  def with_workspace_sdk_output(%__MODULE__{} = env, name, description)
+      when is_binary(name) and is_binary(description) do
     query_builder =
       env.query_builder
       |> QB.select("withWorkspaceSDKOutput")

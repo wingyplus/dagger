@@ -66,7 +66,7 @@ defmodule Dagger.GeneratedCode do
   Set the list of paths to mark generated in version control.
   """
   @spec with_vcs_generated_paths(t(), [String.t()]) :: Dagger.GeneratedCode.t()
-  def with_vcs_generated_paths(%__MODULE__{} = generated_code, paths) do
+  def with_vcs_generated_paths(%__MODULE__{} = generated_code, paths) when is_list(paths) do
     query_builder =
       generated_code.query_builder
       |> QB.select("withVCSGeneratedPaths")
@@ -82,7 +82,7 @@ defmodule Dagger.GeneratedCode do
   Set the list of paths to ignore in version control.
   """
   @spec with_vcs_ignored_paths(t(), [String.t()]) :: Dagger.GeneratedCode.t()
-  def with_vcs_ignored_paths(%__MODULE__{} = generated_code, paths) do
+  def with_vcs_ignored_paths(%__MODULE__{} = generated_code, paths) when is_list(paths) do
     query_builder =
       generated_code.query_builder
       |> QB.select("withVCSIgnoredPaths")

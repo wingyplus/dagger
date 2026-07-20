@@ -179,7 +179,7 @@ defmodule Dagger.Service do
   Configures a hostname which can be used by clients within the session to reach this container.
   """
   @spec with_hostname(t(), String.t()) :: Dagger.Service.t()
-  def with_hostname(%__MODULE__{} = service, hostname) do
+  def with_hostname(%__MODULE__{} = service, hostname) when is_binary(hostname) do
     query_builder =
       service.query_builder |> QB.select("withHostname") |> QB.put_arg("hostname", hostname)
 

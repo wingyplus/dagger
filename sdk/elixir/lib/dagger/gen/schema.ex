@@ -41,7 +41,8 @@ defmodule Dagger.Schema do
   Merge a module's introspection-shaped type definitions into the schema, returning the combined schema.
   """
   @spec merge(t(), Dagger.JSON.t(), String.t()) :: Dagger.Schema.t()
-  def merge(%__MODULE__{} = schema, module_types, module_name) do
+  def merge(%__MODULE__{} = schema, module_types, module_name)
+      when is_binary(module_types) and is_binary(module_name) do
     query_builder =
       schema.query_builder
       |> QB.select("merge")

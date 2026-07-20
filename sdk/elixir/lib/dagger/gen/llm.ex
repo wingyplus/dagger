@@ -19,7 +19,7 @@ defmodule Dagger.LLM do
   returns the type of the current state
   """
   @spec bind_result(t(), String.t()) :: Dagger.Binding.t() | nil
-  def bind_result(%__MODULE__{} = llm, name) do
+  def bind_result(%__MODULE__{} = llm, name) when is_binary(name) do
     query_builder =
       llm.query_builder |> QB.select("bindResult") |> QB.put_arg("name", name)
 
@@ -58,7 +58,7 @@ defmodule Dagger.LLM do
   Fork the conversation, so that otherwise-identical follow-ups evaluate independently instead of deduplicating to a single cached result.
   """
   @spec fork(t(), String.t()) :: Dagger.LLM.t()
-  def fork(%__MODULE__{} = llm, label) do
+  def fork(%__MODULE__{} = llm, label) when is_binary(label) do
     query_builder =
       llm.query_builder |> QB.select("fork") |> QB.put_arg("label", label)
 
@@ -273,7 +273,8 @@ defmodule Dagger.LLM do
   Return a new LLM with the specified function no longer exposed as a tool
   """
   @spec with_blocked_function(t(), String.t(), String.t()) :: Dagger.LLM.t()
-  def with_blocked_function(%__MODULE__{} = llm, type_name, function) do
+  def with_blocked_function(%__MODULE__{} = llm, type_name, function)
+      when is_binary(type_name) and is_binary(function) do
     query_builder =
       llm.query_builder
       |> QB.select("withBlockedFunction")
@@ -290,7 +291,7 @@ defmodule Dagger.LLM do
   allow the LLM to interact with an environment via MCP
   """
   @spec with_env(t(), Dagger.Env.t()) :: Dagger.LLM.t()
-  def with_env(%__MODULE__{} = llm, env) do
+  def with_env(%__MODULE__{} = llm, env) when is_struct(env, Dagger.Env) do
     query_builder =
       llm.query_builder |> QB.select("withEnv") |> QB.put_arg("env", Dagger.ID.id!(env))
 
@@ -304,7 +305,8 @@ defmodule Dagger.LLM do
   Add an external MCP server to the LLM
   """
   @spec with_mcp_server(t(), String.t(), Dagger.Service.t()) :: Dagger.LLM.t()
-  def with_mcp_server(%__MODULE__{} = llm, name, service) do
+  def with_mcp_server(%__MODULE__{} = llm, name, service)
+      when is_binary(name) and is_struct(service, Dagger.Service) do
     query_builder =
       llm.query_builder
       |> QB.select("withMCPServer")
@@ -321,7 +323,7 @@ defmodule Dagger.LLM do
   Change the model for the rest of the conversation. The message history is preserved; the new model takes effect on the next step.
   """
   @spec with_model(t(), String.t(), [{:provider, String.t() | nil}]) :: Dagger.LLM.t()
-  def with_model(%__MODULE__{} = llm, model, optional_args \\ []) do
+  def with_model(%__MODULE__{} = llm, model, optional_args \\ []) when is_binary(model) do
     query_builder =
       llm.query_builder
       |> QB.select("withModel")
@@ -338,7 +340,7 @@ defmodule Dagger.LLM do
   Track an object so the LLM can reference it in subsequent tool calls.
   """
   @spec with_object(t(), String.t(), String.t()) :: Dagger.LLM.t()
-  def with_object(%__MODULE__{} = llm, tag, object) do
+  def with_object(%__MODULE__{} = llm, tag, object) when is_binary(tag) and is_binary(object) do
     query_builder =
       llm.query_builder
       |> QB.select("withObject")
@@ -355,7 +357,7 @@ defmodule Dagger.LLM do
   Queue a user prompt, to be sent to the model on the next step or loop.
   """
   @spec with_prompt(t(), String.t()) :: Dagger.LLM.t()
-  def with_prompt(%__MODULE__{} = llm, prompt) do
+  def with_prompt(%__MODULE__{} = llm, prompt) when is_binary(prompt) do
     query_builder =
       llm.query_builder |> QB.select("withPrompt") |> QB.put_arg("prompt", prompt)
 
@@ -369,7 +371,7 @@ defmodule Dagger.LLM do
   Queue a file's contents as a user prompt, like withPrompt.
   """
   @spec with_prompt_file(t(), Dagger.File.t()) :: Dagger.LLM.t()
-  def with_prompt_file(%__MODULE__{} = llm, file) do
+  def with_prompt_file(%__MODULE__{} = llm, file) when is_struct(file, Dagger.File) do
     query_builder =
       llm.query_builder |> QB.select("withPromptFile") |> QB.put_arg("file", Dagger.ID.id!(file))
 
@@ -389,7 +391,7 @@ defmodule Dagger.LLM do
           {:cached_token_writes, integer() | nil},
           {:total_tokens, integer() | nil}
         ]) :: Dagger.LLM.t()
-  def with_response(%__MODULE__{} = llm, content, optional_args \\ []) do
+  def with_response(%__MODULE__{} = llm, content, optional_args \\ []) when is_list(content) do
     query_builder =
       llm.query_builder
       |> QB.select("withResponse")
@@ -424,7 +426,7 @@ defmodule Dagger.LLM do
   Add a system prompt, instructing the model across the whole conversation.
   """
   @spec with_system_prompt(t(), String.t()) :: Dagger.LLM.t()
-  def with_system_prompt(%__MODULE__{} = llm, prompt) do
+  def with_system_prompt(%__MODULE__{} = llm, prompt) when is_binary(prompt) do
     query_builder =
       llm.query_builder |> QB.select("withSystemPrompt") |> QB.put_arg("prompt", prompt)
 
@@ -438,7 +440,8 @@ defmodule Dagger.LLM do
   Append the result of a tool call to the message history.
   """
   @spec with_tool_result(t(), String.t(), String.t(), boolean()) :: Dagger.LLM.t()
-  def with_tool_result(%__MODULE__{} = llm, call_id, content, errored) do
+  def with_tool_result(%__MODULE__{} = llm, call_id, content, errored)
+      when is_binary(call_id) and is_binary(content) and is_boolean(errored) do
     query_builder =
       llm.query_builder
       |> QB.select("withToolResult")

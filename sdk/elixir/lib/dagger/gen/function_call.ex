@@ -86,7 +86,7 @@ defmodule Dagger.FunctionCall do
   Return an error from the function.
   """
   @spec return_error(t(), Dagger.Error.t()) :: :ok | {:error, term()}
-  def return_error(%__MODULE__{} = function_call, error) do
+  def return_error(%__MODULE__{} = function_call, error) when is_struct(error, Dagger.Error) do
     query_builder =
       function_call.query_builder
       |> QB.select("returnError")
@@ -102,7 +102,7 @@ defmodule Dagger.FunctionCall do
   Set the return value of the function call to the provided value.
   """
   @spec return_value(t(), Dagger.JSON.t()) :: :ok | {:error, term()}
-  def return_value(%__MODULE__{} = function_call, value) do
+  def return_value(%__MODULE__{} = function_call, value) when is_binary(value) do
     query_builder =
       function_call.query_builder |> QB.select("returnValue") |> QB.put_arg("value", value)
 

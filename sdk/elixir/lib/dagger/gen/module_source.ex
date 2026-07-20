@@ -181,7 +181,7 @@ defmodule Dagger.ModuleSource do
   The directory containing the module configuration and source code (source code may be in a subdir).
   """
   @spec directory(t(), String.t()) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = module_source, path) do
+  def directory(%__MODULE__{} = module_source, path) when is_binary(path) do
     query_builder =
       module_source.query_builder |> QB.select("directory") |> QB.put_arg("path", path)
 
@@ -492,7 +492,8 @@ defmodule Dagger.ModuleSource do
   Set a blueprint for the module source.
   """
   @spec with_blueprint(t(), Dagger.ModuleSource.t()) :: Dagger.ModuleSource.t()
-  def with_blueprint(%__MODULE__{} = module_source, blueprint) do
+  def with_blueprint(%__MODULE__{} = module_source, blueprint)
+      when is_struct(blueprint, Dagger.ModuleSource) do
     query_builder =
       module_source.query_builder
       |> QB.select("withBlueprint")
@@ -508,7 +509,8 @@ defmodule Dagger.ModuleSource do
   Update the module source with a new client to generate.
   """
   @spec with_client(t(), String.t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_client(%__MODULE__{} = module_source, generator, output_dir) do
+  def with_client(%__MODULE__{} = module_source, generator, output_dir)
+      when is_binary(generator) and is_binary(output_dir) do
     query_builder =
       module_source.query_builder
       |> QB.select("withClient")
@@ -525,7 +527,7 @@ defmodule Dagger.ModuleSource do
   Append the provided dependencies to the module source's dependency list.
   """
   @spec with_dependencies(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_dependencies(%__MODULE__{} = module_source, dependencies) do
+  def with_dependencies(%__MODULE__{} = module_source, dependencies) when is_list(dependencies) do
     query_builder =
       module_source.query_builder
       |> QB.select("withDependencies")
@@ -541,7 +543,7 @@ defmodule Dagger.ModuleSource do
   Upgrade the engine version of the module to the given value.
   """
   @spec with_engine_version(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_engine_version(%__MODULE__{} = module_source, version) do
+  def with_engine_version(%__MODULE__{} = module_source, version) when is_binary(version) do
     query_builder =
       module_source.query_builder
       |> QB.select("withEngineVersion")
@@ -558,7 +560,8 @@ defmodule Dagger.ModuleSource do
   """
   @spec with_experimental_features(t(), [Dagger.ModuleSourceExperimentalFeature.t()]) ::
           Dagger.ModuleSource.t()
-  def with_experimental_features(%__MODULE__{} = module_source, features) do
+  def with_experimental_features(%__MODULE__{} = module_source, features)
+      when is_list(features) do
     query_builder =
       module_source.query_builder
       |> QB.select("withExperimentalFeatures")
@@ -574,7 +577,7 @@ defmodule Dagger.ModuleSource do
   Update the module source with additional include patterns for files+directories from its context that are required for building it
   """
   @spec with_includes(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_includes(%__MODULE__{} = module_source, patterns) do
+  def with_includes(%__MODULE__{} = module_source, patterns) when is_list(patterns) do
     query_builder =
       module_source.query_builder |> QB.select("withIncludes") |> QB.put_arg("patterns", patterns)
 
@@ -588,7 +591,7 @@ defmodule Dagger.ModuleSource do
   Update the module source with a new name.
   """
   @spec with_name(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_name(%__MODULE__{} = module_source, name) do
+  def with_name(%__MODULE__{} = module_source, name) when is_binary(name) do
     query_builder =
       module_source.query_builder |> QB.select("withName") |> QB.put_arg("name", name)
 
@@ -602,7 +605,7 @@ defmodule Dagger.ModuleSource do
   Update the module source with a new SDK.
   """
   @spec with_sdk(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_sdk(%__MODULE__{} = module_source, source) do
+  def with_sdk(%__MODULE__{} = module_source, source) when is_binary(source) do
     query_builder =
       module_source.query_builder |> QB.select("withSDK") |> QB.put_arg("source", source)
 
@@ -616,7 +619,7 @@ defmodule Dagger.ModuleSource do
   Update the module source with a new source subpath.
   """
   @spec with_source_subpath(t(), String.t()) :: Dagger.ModuleSource.t()
-  def with_source_subpath(%__MODULE__{} = module_source, path) do
+  def with_source_subpath(%__MODULE__{} = module_source, path) when is_binary(path) do
     query_builder =
       module_source.query_builder |> QB.select("withSourceSubpath") |> QB.put_arg("path", path)
 
@@ -633,7 +636,7 @@ defmodule Dagger.ModuleSource do
   Add toolchains to the module source.
   """
   @spec with_toolchains(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_toolchains(%__MODULE__{} = module_source, toolchains) do
+  def with_toolchains(%__MODULE__{} = module_source, toolchains) when is_list(toolchains) do
     query_builder =
       module_source.query_builder
       |> QB.select("withToolchains")
@@ -666,7 +669,8 @@ defmodule Dagger.ModuleSource do
   Update one or more module dependencies.
   """
   @spec with_update_dependencies(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_update_dependencies(%__MODULE__{} = module_source, dependencies) do
+  def with_update_dependencies(%__MODULE__{} = module_source, dependencies)
+      when is_list(dependencies) do
     query_builder =
       module_source.query_builder
       |> QB.select("withUpdateDependencies")
@@ -685,7 +689,8 @@ defmodule Dagger.ModuleSource do
   Update one or more toolchains.
   """
   @spec with_update_toolchains(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_update_toolchains(%__MODULE__{} = module_source, toolchains) do
+  def with_update_toolchains(%__MODULE__{} = module_source, toolchains)
+      when is_list(toolchains) do
     query_builder =
       module_source.query_builder
       |> QB.select("withUpdateToolchains")
@@ -701,7 +706,7 @@ defmodule Dagger.ModuleSource do
   Update one or more clients.
   """
   @spec with_updated_clients(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def with_updated_clients(%__MODULE__{} = module_source, clients) do
+  def with_updated_clients(%__MODULE__{} = module_source, clients) when is_list(clients) do
     query_builder =
       module_source.query_builder
       |> QB.select("withUpdatedClients")
@@ -734,7 +739,7 @@ defmodule Dagger.ModuleSource do
   Remove a client from the module source.
   """
   @spec without_client(t(), String.t()) :: Dagger.ModuleSource.t()
-  def without_client(%__MODULE__{} = module_source, path) do
+  def without_client(%__MODULE__{} = module_source, path) when is_binary(path) do
     query_builder =
       module_source.query_builder |> QB.select("withoutClient") |> QB.put_arg("path", path)
 
@@ -748,7 +753,8 @@ defmodule Dagger.ModuleSource do
   Remove the provided dependencies from the module source's dependency list.
   """
   @spec without_dependencies(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def without_dependencies(%__MODULE__{} = module_source, dependencies) do
+  def without_dependencies(%__MODULE__{} = module_source, dependencies)
+      when is_list(dependencies) do
     query_builder =
       module_source.query_builder
       |> QB.select("withoutDependencies")
@@ -765,7 +771,8 @@ defmodule Dagger.ModuleSource do
   """
   @spec without_experimental_features(t(), [Dagger.ModuleSourceExperimentalFeature.t()]) ::
           Dagger.ModuleSource.t()
-  def without_experimental_features(%__MODULE__{} = module_source, features) do
+  def without_experimental_features(%__MODULE__{} = module_source, features)
+      when is_list(features) do
     query_builder =
       module_source.query_builder
       |> QB.select("withoutExperimentalFeatures")
@@ -784,7 +791,7 @@ defmodule Dagger.ModuleSource do
   Remove the provided toolchains from the module source.
   """
   @spec without_toolchains(t(), [String.t()]) :: Dagger.ModuleSource.t()
-  def without_toolchains(%__MODULE__{} = module_source, toolchains) do
+  def without_toolchains(%__MODULE__{} = module_source, toolchains) when is_list(toolchains) do
     query_builder =
       module_source.query_builder
       |> QB.select("withoutToolchains")

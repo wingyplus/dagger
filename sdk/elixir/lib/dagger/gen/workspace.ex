@@ -119,7 +119,7 @@ defmodule Dagger.Workspace do
           {:include, [String.t()]},
           {:gitignore, boolean() | nil}
         ]) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = workspace, path, optional_args \\ []) do
+  def directory(%__MODULE__{} = workspace, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       workspace.query_builder
       |> QB.select("directory")
@@ -165,7 +165,7 @@ defmodule Dagger.Workspace do
   Relative paths resolve from the workspace cwd. Absolute paths resolve from the workspace root.
   """
   @spec file(t(), String.t()) :: Dagger.File.t()
-  def file(%__MODULE__{} = workspace, path) do
+  def file(%__MODULE__{} = workspace, path) when is_binary(path) do
     query_builder =
       workspace.query_builder |> QB.select("file") |> QB.put_arg("path", path)
 
@@ -186,7 +186,7 @@ defmodule Dagger.Workspace do
   """
   @spec find_up(t(), String.t(), [{:from, String.t() | nil}]) ::
           {:ok, String.t() | nil} | {:error, term()}
-  def find_up(%__MODULE__{} = workspace, name, optional_args \\ []) do
+  def find_up(%__MODULE__{} = workspace, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       workspace.query_builder
       |> QB.select("findUp")
@@ -232,7 +232,7 @@ defmodule Dagger.Workspace do
   Patterns match paths relative to the workspace root.
   """
   @spec glob(t(), String.t()) :: {:ok, [String.t()]} | {:error, term()}
-  def glob(%__MODULE__{} = workspace, pattern) do
+  def glob(%__MODULE__{} = workspace, pattern) when is_binary(pattern) do
     query_builder =
       workspace.query_builder |> QB.select("glob") |> QB.put_arg("pattern", pattern)
 
@@ -270,7 +270,7 @@ defmodule Dagger.Workspace do
   Return a module defined in the workspace configuration.
   """
   @spec module(t(), String.t()) :: Dagger.WorkspaceModule.t()
-  def module(%__MODULE__{} = workspace, name) do
+  def module(%__MODULE__{} = workspace, name) when is_binary(name) do
     query_builder =
       workspace.query_builder |> QB.select("module") |> QB.put_arg("name", name)
 
@@ -288,7 +288,7 @@ defmodule Dagger.Workspace do
   Fails if the path does not point to an initialized module.
   """
   @spec module_source(t(), String.t()) :: Dagger.ModuleSource.t()
-  def module_source(%__MODULE__{} = workspace, path) do
+  def module_source(%__MODULE__{} = workspace, path) when is_binary(path) do
     query_builder =
       workspace.query_builder |> QB.select("moduleSource") |> QB.put_arg("path", path)
 
@@ -325,7 +325,7 @@ defmodule Dagger.Workspace do
   An installed SDK, by name.
   """
   @spec sdk(t(), String.t()) :: Dagger.WorkspaceSDK.t()
-  def sdk(%__MODULE__{} = workspace, name) do
+  def sdk(%__MODULE__{} = workspace, name) when is_binary(name) do
     query_builder =
       workspace.query_builder |> QB.select("sdk") |> QB.put_arg("name", name)
 
@@ -377,7 +377,7 @@ defmodule Dagger.Workspace do
           {:files_only, boolean() | nil},
           {:limit, integer() | nil}
         ]) :: {:ok, [Dagger.SearchResult.t()]} | {:error, term()}
-  def search(%__MODULE__{} = workspace, pattern, optional_args \\ []) do
+  def search(%__MODULE__{} = workspace, pattern, optional_args \\ []) when is_binary(pattern) do
     query_builder =
       workspace.query_builder
       |> QB.select("search")
@@ -429,7 +429,8 @@ defmodule Dagger.Workspace do
   Return this workspace with a changeset applied, without mutating the source.
   """
   @spec with_changes(t(), Dagger.Changeset.t()) :: Dagger.Workspace.t()
-  def with_changes(%__MODULE__{} = workspace, changes) do
+  def with_changes(%__MODULE__{} = workspace, changes)
+      when is_struct(changes, Dagger.Changeset) do
     query_builder =
       workspace.query_builder
       |> QB.select("withChanges")
@@ -445,7 +446,8 @@ defmodule Dagger.Workspace do
   Return this workspace with a named config environment created.
   """
   @spec with_config_env(t(), String.t(), [{:here, boolean() | nil}]) :: Dagger.Workspace.t()
-  def with_config_env(%__MODULE__{} = workspace, name, optional_args \\ []) do
+  def with_config_env(%__MODULE__{} = workspace, name, optional_args \\ [])
+      when is_binary(name) do
     query_builder =
       workspace.query_builder
       |> QB.select("withConfigEnv")
@@ -465,7 +467,8 @@ defmodule Dagger.Workspace do
           {:values, [String.t()]},
           {:here, boolean() | nil}
         ]) :: Dagger.Workspace.t()
-  def with_config_value(%__MODULE__{} = workspace, key, value, optional_args \\ []) do
+  def with_config_value(%__MODULE__{} = workspace, key, value, optional_args \\ [])
+      when is_binary(key) and is_binary(value) do
     query_builder =
       workspace.query_builder
       |> QB.select("withConfigValue")
@@ -487,7 +490,8 @@ defmodule Dagger.Workspace do
           {:args, Dagger.JSON.t() | nil},
           {:here, boolean() | nil}
         ]) :: Dagger.Workspace.t()
-  def with_init_client(%__MODULE__{} = workspace, path, sdk, module, optional_args \\ []) do
+  def with_init_client(%__MODULE__{} = workspace, path, sdk, module, optional_args \\ [])
+      when is_binary(path) and is_binary(sdk) and is_binary(module) do
     query_builder =
       workspace.query_builder
       |> QB.select("withInitClient")
@@ -513,7 +517,8 @@ defmodule Dagger.Workspace do
           {:args, Dagger.JSON.t() | nil},
           {:here, boolean() | nil}
         ]) :: Dagger.Workspace.t()
-  def with_init_module(%__MODULE__{} = workspace, name, sdk, optional_args \\ []) do
+  def with_init_module(%__MODULE__{} = workspace, name, sdk, optional_args \\ [])
+      when is_binary(name) and is_binary(sdk) do
     query_builder =
       workspace.query_builder
       |> QB.select("withInitModule")
@@ -536,7 +541,7 @@ defmodule Dagger.Workspace do
   """
   @spec with_module(t(), String.t(), [{:name, String.t() | nil}, {:here, boolean() | nil}]) ::
           Dagger.Workspace.t()
-  def with_module(%__MODULE__{} = workspace, ref, optional_args \\ []) do
+  def with_module(%__MODULE__{} = workspace, ref, optional_args \\ []) when is_binary(ref) do
     query_builder =
       workspace.query_builder
       |> QB.select("withModule")
@@ -554,7 +559,8 @@ defmodule Dagger.Workspace do
   Return this workspace with a directory added, without mutating the source.
   """
   @spec with_new_directory(t(), String.t(), Dagger.Directory.t()) :: Dagger.Workspace.t()
-  def with_new_directory(%__MODULE__{} = workspace, path, source) do
+  def with_new_directory(%__MODULE__{} = workspace, path, source)
+      when is_binary(path) and is_struct(source, Dagger.Directory) do
     query_builder =
       workspace.query_builder
       |> QB.select("withNewDirectory")
@@ -572,7 +578,8 @@ defmodule Dagger.Workspace do
   """
   @spec with_new_file(t(), String.t(), String.t(), [{:permissions, integer() | nil}]) ::
           Dagger.Workspace.t()
-  def with_new_file(%__MODULE__{} = workspace, path, contents, optional_args \\ []) do
+  def with_new_file(%__MODULE__{} = workspace, path, contents, optional_args \\ [])
+      when is_binary(path) and is_binary(contents) do
     query_builder =
       workspace.query_builder
       |> QB.select("withNewFile")
@@ -594,7 +601,7 @@ defmodule Dagger.Workspace do
           {:here, boolean() | nil},
           {:as_sdk_name, String.t() | nil}
         ]) :: Dagger.Workspace.t()
-  def with_sdk(%__MODULE__{} = workspace, ref, optional_args \\ []) do
+  def with_sdk(%__MODULE__{} = workspace, ref, optional_args \\ []) when is_binary(ref) do
     query_builder =
       workspace.query_builder
       |> QB.select("withSDK")
@@ -627,7 +634,8 @@ defmodule Dagger.Workspace do
   Return this workspace with a named config environment removed.
   """
   @spec without_config_env(t(), String.t(), [{:here, boolean() | nil}]) :: Dagger.Workspace.t()
-  def without_config_env(%__MODULE__{} = workspace, name, optional_args \\ []) do
+  def without_config_env(%__MODULE__{} = workspace, name, optional_args \\ [])
+      when is_binary(name) do
     query_builder =
       workspace.query_builder
       |> QB.select("withoutConfigEnv")
@@ -646,7 +654,8 @@ defmodule Dagger.Workspace do
   Errors when the key is not currently set.
   """
   @spec without_config_value(t(), String.t(), [{:here, boolean() | nil}]) :: Dagger.Workspace.t()
-  def without_config_value(%__MODULE__{} = workspace, key, optional_args \\ []) do
+  def without_config_value(%__MODULE__{} = workspace, key, optional_args \\ [])
+      when is_binary(key) do
     query_builder =
       workspace.query_builder
       |> QB.select("withoutConfigValue")
@@ -663,7 +672,7 @@ defmodule Dagger.Workspace do
   Return this workspace with a module removed from its config.
   """
   @spec without_module(t(), String.t(), [{:here, boolean() | nil}]) :: Dagger.Workspace.t()
-  def without_module(%__MODULE__{} = workspace, name, optional_args \\ []) do
+  def without_module(%__MODULE__{} = workspace, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       workspace.query_builder
       |> QB.select("withoutModule")
@@ -680,7 +689,7 @@ defmodule Dagger.Workspace do
   Return this workspace with an SDK removed from its config.
   """
   @spec without_sdk(t(), String.t(), [{:here, boolean() | nil}]) :: Dagger.Workspace.t()
-  def without_sdk(%__MODULE__{} = workspace, name, optional_args \\ []) do
+  def without_sdk(%__MODULE__{} = workspace, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       workspace.query_builder
       |> QB.select("withoutSDK")

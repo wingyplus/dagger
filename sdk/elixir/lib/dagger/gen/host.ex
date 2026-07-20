@@ -19,7 +19,7 @@ defmodule Dagger.Host do
   Accesses a container image on the host.
   """
   @spec container_image(t(), String.t()) :: Dagger.Container.t()
-  def container_image(%__MODULE__{} = host, name) do
+  def container_image(%__MODULE__{} = host, name) when is_binary(name) do
     query_builder =
       host.query_builder |> QB.select("containerImage") |> QB.put_arg("name", name)
 
@@ -38,7 +38,7 @@ defmodule Dagger.Host do
           {:no_cache, boolean() | nil},
           {:gitignore, boolean() | nil}
         ]) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = host, path, optional_args \\ []) do
+  def directory(%__MODULE__{} = host, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       host.query_builder
       |> QB.select("directory")
@@ -58,7 +58,7 @@ defmodule Dagger.Host do
   Accesses a file on the host.
   """
   @spec file(t(), String.t(), [{:no_cache, boolean() | nil}]) :: Dagger.File.t()
-  def file(%__MODULE__{} = host, path, optional_args \\ []) do
+  def file(%__MODULE__{} = host, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       host.query_builder
       |> QB.select("file")
@@ -76,7 +76,7 @@ defmodule Dagger.Host do
   """
   @spec find_up(t(), String.t(), [{:no_cache, boolean() | nil}]) ::
           {:ok, String.t() | nil} | {:error, term()}
-  def find_up(%__MODULE__{} = host, name, optional_args \\ []) do
+  def find_up(%__MODULE__{} = host, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       host.query_builder
       |> QB.select("findUp")
@@ -101,7 +101,7 @@ defmodule Dagger.Host do
   Creates a service that forwards traffic to a specified address via the host.
   """
   @spec service(t(), [Dagger.PortForward.t()], [{:host, String.t() | nil}]) :: Dagger.Service.t()
-  def service(%__MODULE__{} = host, ports, optional_args \\ []) do
+  def service(%__MODULE__{} = host, ports, optional_args \\ []) when is_list(ports) do
     query_builder =
       host.query_builder
       |> QB.select("service")
@@ -121,7 +121,8 @@ defmodule Dagger.Host do
           {:native, boolean() | nil},
           {:ports, [Dagger.PortForward.t()]}
         ]) :: Dagger.Service.t()
-  def tunnel(%__MODULE__{} = host, service, optional_args \\ []) do
+  def tunnel(%__MODULE__{} = host, service, optional_args \\ [])
+      when is_struct(service, Dagger.Service) do
     query_builder =
       host.query_builder
       |> QB.select("tunnel")
@@ -139,7 +140,7 @@ defmodule Dagger.Host do
   Accesses a Unix socket on the host.
   """
   @spec unix_socket(t(), String.t()) :: Dagger.Socket.t()
-  def unix_socket(%__MODULE__{} = host, path) do
+  def unix_socket(%__MODULE__{} = host, path) when is_binary(path) do
     query_builder =
       host.query_builder |> QB.select("unixSocket") |> QB.put_arg("path", path)
 

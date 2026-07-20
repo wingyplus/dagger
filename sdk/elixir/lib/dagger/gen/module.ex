@@ -23,7 +23,7 @@ defmodule Dagger.Module do
   > "This API is highly experimental and may be removed or replaced entirely."
   """
   @spec check(t(), String.t()) :: Dagger.Check.t()
-  def check(%__MODULE__{} = module, name) do
+  def check(%__MODULE__{} = module, name) when is_binary(name) do
     query_builder =
       module.query_builder |> QB.select("check") |> QB.put_arg("name", name)
 
@@ -134,7 +134,7 @@ defmodule Dagger.Module do
   > "This API is highly experimental and may be removed or replaced entirely."
   """
   @spec generator(t(), String.t()) :: Dagger.Generator.t()
-  def generator(%__MODULE__{} = module, name) do
+  def generator(%__MODULE__{} = module, name) when is_binary(name) do
     query_builder =
       module.query_builder |> QB.select("generator") |> QB.put_arg("name", name)
 
@@ -371,7 +371,7 @@ defmodule Dagger.Module do
   Retrieves the module with the given description
   """
   @spec with_description(t(), String.t()) :: Dagger.Module.t()
-  def with_description(%__MODULE__{} = module, description) do
+  def with_description(%__MODULE__{} = module, description) when is_binary(description) do
     query_builder =
       module.query_builder
       |> QB.select("withDescription")
@@ -387,7 +387,7 @@ defmodule Dagger.Module do
   This module plus the given Enum type and associated values
   """
   @spec with_enum(t(), Dagger.TypeDef.t()) :: Dagger.Module.t()
-  def with_enum(%__MODULE__{} = module, enum) do
+  def with_enum(%__MODULE__{} = module, enum) when is_struct(enum, Dagger.TypeDef) do
     query_builder =
       module.query_builder |> QB.select("withEnum") |> QB.put_arg("enum", Dagger.ID.id!(enum))
 
@@ -401,7 +401,7 @@ defmodule Dagger.Module do
   This module plus the given Interface type and associated functions
   """
   @spec with_interface(t(), Dagger.TypeDef.t()) :: Dagger.Module.t()
-  def with_interface(%__MODULE__{} = module, iface) do
+  def with_interface(%__MODULE__{} = module, iface) when is_struct(iface, Dagger.TypeDef) do
     query_builder =
       module.query_builder
       |> QB.select("withInterface")
@@ -417,7 +417,7 @@ defmodule Dagger.Module do
   This module plus the given Object type and associated functions.
   """
   @spec with_object(t(), Dagger.TypeDef.t()) :: Dagger.Module.t()
-  def with_object(%__MODULE__{} = module, object) do
+  def with_object(%__MODULE__{} = module, object) when is_struct(object, Dagger.TypeDef) do
     query_builder =
       module.query_builder
       |> QB.select("withObject")

@@ -64,7 +64,7 @@ defmodule Dagger.Error do
   Add a value to the error.
   """
   @spec with_value(t(), String.t(), Dagger.JSON.t()) :: Dagger.Error.t()
-  def with_value(%__MODULE__{} = error, name, value) do
+  def with_value(%__MODULE__{} = error, name, value) when is_binary(name) and is_binary(value) do
     query_builder =
       error.query_builder
       |> QB.select("withValue")

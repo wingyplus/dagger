@@ -95,7 +95,7 @@ defmodule Dagger.Changeset do
   Applies the diff represented by this changeset to a path on the host.
   """
   @spec export(t(), String.t()) :: {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = changeset, path) do
+  def export(%__MODULE__{} = changeset, path) when is_binary(path) do
     query_builder =
       changeset.query_builder |> QB.select("export") |> QB.put_arg("path", path)
 
@@ -189,7 +189,8 @@ defmodule Dagger.Changeset do
   @spec with_changeset(t(), Dagger.Changeset.t(), [
           {:on_conflict, Dagger.ChangesetMergeConflict.t() | nil}
         ]) :: Dagger.Changeset.t()
-  def with_changeset(%__MODULE__{} = changeset, changes, optional_args \\ []) do
+  def with_changeset(%__MODULE__{} = changeset, changes, optional_args \\ [])
+      when is_struct(changes, Dagger.Changeset) do
     query_builder =
       changeset.query_builder
       |> QB.select("withChangeset")
@@ -212,7 +213,8 @@ defmodule Dagger.Changeset do
   @spec with_changesets(t(), [String.t()], [
           {:on_conflict, Dagger.ChangesetsMergeConflict.t() | nil}
         ]) :: Dagger.Changeset.t()
-  def with_changesets(%__MODULE__{} = changeset, changes, optional_args \\ []) do
+  def with_changesets(%__MODULE__{} = changeset, changes, optional_args \\ [])
+      when is_list(changes) do
     query_builder =
       changeset.query_builder
       |> QB.select("withChangesets")

@@ -43,6 +43,10 @@ defmodule Dagger.Codegen.Introspection.Types.TypeRef do
 
   def is_list_of?(_, _), do: false
 
+  def is_list?(%__MODULE__{kind: "NON_NULL", of_type: type}), do: is_list?(type)
+  def is_list?(%__MODULE__{kind: "LIST"}), do: true
+  def is_list?(_), do: false
+
   # TODO: refactor me.
   def unwrap_list(%__MODULE__{
         kind: "NON_NULL",

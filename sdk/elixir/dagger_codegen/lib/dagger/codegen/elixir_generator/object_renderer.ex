@@ -119,7 +119,9 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
       ?\n,
       "def #{fun_name}(",
       render_function_args(module_var, required_args, optional_args),
-      ") do",
+      ")",
+      render_function_guards(required_args),
+      " do",
       ?\n,
       "  query_builder = ",
       ?\n,
@@ -367,6 +369,51 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRenderer do
   def render_function_optional_args(_args) do
     ", optional_args \\\\ []"
   end
+
+  @doc """
+  Render `when` guards for required arguments based on their type.
+  """
+  def render_function_guards(required_args) do
+    guards =
+      required_args
+      |> Enum.map(&render_guard/1)
+      |> Enum.reject(&is_nil/1)
+
+    case guards do
+      [] -> []
+      guards -> [" when ", Enum.intersperse(guards, " and ")]
+    end
+  end
+
+  defp render_guard(arg) do
+    var = Formatter.format_var_name(arg.name)
+
+    cond do
+      convert_id?(arg) ->
+        module = arg.directives |> Directive.expected_type() |> Formatter.format_module()
+        "is_struct(#{var}, #{module})"
+
+      TypeRef.is_list?(arg.type) ->
+        "is_list(#{var})"
+
+      TypeRef.is_enum?(arg.type) ->
+        "is_atom(#{var})"
+
+      true ->
+        case scalar_name(arg.type) do
+          "Int" -> "is_integer(#{var})"
+          "Float" -> "is_float(#{var})"
+          "Boolean" -> "is_boolean(#{var})"
+          "DateTime" -> "is_struct(#{var}, DateTime)"
+          name when is_binary(name) -> "is_binary(#{var})"
+          _ -> nil
+        end
+    end
+  end
+
+  defp scalar_name(%TypeRef{kind: "NON_NULL", of_type: type}), do: scalar_name(type)
+  defp scalar_name(%TypeRef{kind: "SCALAR", name: name}), do: name
+  defp scalar_name(_), do: nil
 
   def render_put_arg(arg) do
     var_name = Formatter.format_var_name(arg.name)

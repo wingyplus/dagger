@@ -132,7 +132,7 @@ defmodule Dagger.CurrentModule do
           {:include, [String.t()]},
           {:gitignore, boolean() | nil}
         ]) :: Dagger.Directory.t()
-  def workdir(%__MODULE__{} = current_module, path, optional_args \\ []) do
+  def workdir(%__MODULE__{} = current_module, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       current_module.query_builder
       |> QB.select("workdir")
@@ -151,7 +151,7 @@ defmodule Dagger.CurrentModule do
   Load a file from the module's scratch working directory, including any changes that may have been made to it during module function execution.Load a file from the module's scratch working directory, including any changes that may have been made to it during module function execution.
   """
   @spec workdir_file(t(), String.t()) :: Dagger.File.t()
-  def workdir_file(%__MODULE__{} = current_module, path) do
+  def workdir_file(%__MODULE__{} = current_module, path) when is_binary(path) do
     query_builder =
       current_module.query_builder |> QB.select("workdirFile") |> QB.put_arg("path", path)
 

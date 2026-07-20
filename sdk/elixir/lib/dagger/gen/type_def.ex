@@ -150,7 +150,8 @@ defmodule Dagger.TypeDef do
   Adds a function for constructing a new instance of an Object TypeDef, failing if the type is not an object.
   """
   @spec with_constructor(t(), Dagger.Function.t()) :: Dagger.TypeDef.t()
-  def with_constructor(%__MODULE__{} = type_def, function) do
+  def with_constructor(%__MODULE__{} = type_def, function)
+      when is_struct(function, Dagger.Function) do
     query_builder =
       type_def.query_builder
       |> QB.select("withConstructor")
@@ -171,7 +172,7 @@ defmodule Dagger.TypeDef do
           {:description, String.t() | nil},
           {:source_map, Dagger.SourceMap.t() | nil}
         ]) :: Dagger.TypeDef.t()
-  def with_enum(%__MODULE__{} = type_def, name, optional_args \\ []) do
+  def with_enum(%__MODULE__{} = type_def, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       type_def.query_builder
       |> QB.select("withEnum")
@@ -197,7 +198,8 @@ defmodule Dagger.TypeDef do
           {:source_map, Dagger.SourceMap.t() | nil},
           {:deprecated, String.t() | nil}
         ]) :: Dagger.TypeDef.t()
-  def with_enum_member(%__MODULE__{} = type_def, name, optional_args \\ []) do
+  def with_enum_member(%__MODULE__{} = type_def, name, optional_args \\ [])
+      when is_binary(name) do
     query_builder =
       type_def.query_builder
       |> QB.select("withEnumMember")
@@ -227,7 +229,8 @@ defmodule Dagger.TypeDef do
           {:source_map, Dagger.SourceMap.t() | nil},
           {:deprecated, String.t() | nil}
         ]) :: Dagger.TypeDef.t()
-  def with_enum_value(%__MODULE__{} = type_def, value, optional_args \\ []) do
+  def with_enum_value(%__MODULE__{} = type_def, value, optional_args \\ [])
+      when is_binary(value) do
     query_builder =
       type_def.query_builder
       |> QB.select("withEnumValue")
@@ -253,7 +256,8 @@ defmodule Dagger.TypeDef do
           {:source_map, Dagger.SourceMap.t() | nil},
           {:deprecated, String.t() | nil}
         ]) :: Dagger.TypeDef.t()
-  def with_field(%__MODULE__{} = type_def_, name, type_def, optional_args \\ []) do
+  def with_field(%__MODULE__{} = type_def_, name, type_def, optional_args \\ [])
+      when is_binary(name) and is_struct(type_def, Dagger.TypeDef) do
     query_builder =
       type_def_.query_builder
       |> QB.select("withField")
@@ -276,7 +280,8 @@ defmodule Dagger.TypeDef do
   Adds a function for an Object or Interface TypeDef, failing if the type is not one of those kinds.
   """
   @spec with_function(t(), Dagger.Function.t()) :: Dagger.TypeDef.t()
-  def with_function(%__MODULE__{} = type_def, function) do
+  def with_function(%__MODULE__{} = type_def, function)
+      when is_struct(function, Dagger.Function) do
     query_builder =
       type_def.query_builder
       |> QB.select("withFunction")
@@ -295,7 +300,7 @@ defmodule Dagger.TypeDef do
           {:description, String.t() | nil},
           {:source_map, Dagger.SourceMap.t() | nil}
         ]) :: Dagger.TypeDef.t()
-  def with_interface(%__MODULE__{} = type_def, name, optional_args \\ []) do
+  def with_interface(%__MODULE__{} = type_def, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       type_def.query_builder
       |> QB.select("withInterface")
@@ -316,7 +321,7 @@ defmodule Dagger.TypeDef do
   Sets the kind of the type.
   """
   @spec with_kind(t(), Dagger.TypeDefKind.t()) :: Dagger.TypeDef.t()
-  def with_kind(%__MODULE__{} = type_def, kind) do
+  def with_kind(%__MODULE__{} = type_def, kind) when is_atom(kind) do
     query_builder =
       type_def.query_builder |> QB.select("withKind") |> QB.put_arg("kind", kind)
 
@@ -330,7 +335,8 @@ defmodule Dagger.TypeDef do
   Returns a TypeDef of kind List with the provided type for its elements.
   """
   @spec with_list_of(t(), Dagger.TypeDef.t()) :: Dagger.TypeDef.t()
-  def with_list_of(%__MODULE__{} = type_def, element_type) do
+  def with_list_of(%__MODULE__{} = type_def, element_type)
+      when is_struct(element_type, Dagger.TypeDef) do
     query_builder =
       type_def.query_builder
       |> QB.select("withListOf")
@@ -352,7 +358,7 @@ defmodule Dagger.TypeDef do
           {:source_map, Dagger.SourceMap.t() | nil},
           {:deprecated, String.t() | nil}
         ]) :: Dagger.TypeDef.t()
-  def with_object(%__MODULE__{} = type_def, name, optional_args \\ []) do
+  def with_object(%__MODULE__{} = type_def, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       type_def.query_builder
       |> QB.select("withObject")
@@ -374,7 +380,7 @@ defmodule Dagger.TypeDef do
   Sets whether this type can be set to null.
   """
   @spec with_optional(t(), boolean()) :: Dagger.TypeDef.t()
-  def with_optional(%__MODULE__{} = type_def, optional) do
+  def with_optional(%__MODULE__{} = type_def, optional) when is_boolean(optional) do
     query_builder =
       type_def.query_builder |> QB.select("withOptional") |> QB.put_arg("optional", optional)
 
@@ -388,7 +394,7 @@ defmodule Dagger.TypeDef do
   Returns a TypeDef of kind Scalar with the provided name.
   """
   @spec with_scalar(t(), String.t(), [{:description, String.t() | nil}]) :: Dagger.TypeDef.t()
-  def with_scalar(%__MODULE__{} = type_def, name, optional_args \\ []) do
+  def with_scalar(%__MODULE__{} = type_def, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       type_def.query_builder
       |> QB.select("withScalar")

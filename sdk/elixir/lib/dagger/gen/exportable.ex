@@ -18,7 +18,7 @@ defmodule Dagger.Exportable do
   @type t() :: %__MODULE__{}
 
   @spec export(t(), String.t()) :: {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = exportable, path) do
+  def export(%__MODULE__{} = exportable, path) when is_binary(path) do
     query_builder =
       exportable.query_builder |> QB.select("export") |> QB.put_arg("path", path)
 

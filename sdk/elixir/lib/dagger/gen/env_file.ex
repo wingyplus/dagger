@@ -33,7 +33,7 @@ defmodule Dagger.EnvFile do
   Check if a variable exists
   """
   @spec exists(t(), String.t()) :: {:ok, boolean()} | {:error, term()}
-  def exists(%__MODULE__{} = env_file, name) do
+  def exists(%__MODULE__{} = env_file, name) when is_binary(name) do
     query_builder =
       env_file.query_builder |> QB.select("exists") |> QB.put_arg("name", name)
 
@@ -44,7 +44,7 @@ defmodule Dagger.EnvFile do
   Lookup a variable (last occurrence wins) and return its value, or an empty string
   """
   @spec get(t(), String.t(), [{:raw, boolean() | nil}]) :: {:ok, String.t()} | {:error, term()}
-  def get(%__MODULE__{} = env_file, name, optional_args \\ []) do
+  def get(%__MODULE__{} = env_file, name, optional_args \\ []) when is_binary(name) do
     query_builder =
       env_file.query_builder
       |> QB.select("get")
@@ -69,7 +69,7 @@ defmodule Dagger.EnvFile do
   Filters variables by prefix and removes the pref from keys. Variables without the prefix are excluded. For example, with the prefix "MY_APP_" and variables: MY_APP_TOKEN=topsecret MY_APP_NAME=hello FOO=bar the resulting environment will contain: TOKEN=topsecret NAME=hello
   """
   @spec namespace(t(), String.t()) :: Dagger.EnvFile.t()
-  def namespace(%__MODULE__{} = env_file, prefix) do
+  def namespace(%__MODULE__{} = env_file, prefix) when is_binary(prefix) do
     query_builder =
       env_file.query_builder |> QB.select("namespace") |> QB.put_arg("prefix", prefix)
 
@@ -110,7 +110,8 @@ defmodule Dagger.EnvFile do
   Add a variable
   """
   @spec with_variable(t(), String.t(), String.t()) :: Dagger.EnvFile.t()
-  def with_variable(%__MODULE__{} = env_file, name, value) do
+  def with_variable(%__MODULE__{} = env_file, name, value)
+      when is_binary(name) and is_binary(value) do
     query_builder =
       env_file.query_builder
       |> QB.select("withVariable")
@@ -127,7 +128,7 @@ defmodule Dagger.EnvFile do
   Remove all occurrences of the named variable
   """
   @spec without_variable(t(), String.t()) :: Dagger.EnvFile.t()
-  def without_variable(%__MODULE__{} = env_file, name) do
+  def without_variable(%__MODULE__{} = env_file, name) when is_binary(name) do
     query_builder =
       env_file.query_builder |> QB.select("withoutVariable") |> QB.put_arg("name", name)
 

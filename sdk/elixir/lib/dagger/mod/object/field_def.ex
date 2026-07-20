@@ -12,7 +12,7 @@ defmodule Dagger.Mod.Object.FieldDef do
   def define(%__MODULE__{} = field_def, name, type_def, dag) do
     type_def
     |> Dagger.TypeDef.with_field(
-      name,
+      to_string(name),
       Dagger.Mod.Object.TypeDef.define(dag, field_def.type),
       to_field_opts(field_def)
     )

@@ -90,7 +90,7 @@ defmodule Dagger.JSONValue do
   Lookup the field at the given path, and return its value.
   """
   @spec field(t(), [String.t()]) :: Dagger.JSONValue.t()
-  def field(%__MODULE__{} = json_value, path) do
+  def field(%__MODULE__{} = json_value, path) when is_list(path) do
     query_builder =
       json_value.query_builder |> QB.select("field") |> QB.put_arg("path", path)
 
@@ -126,7 +126,7 @@ defmodule Dagger.JSONValue do
   Encode a boolean to json
   """
   @spec new_boolean(t(), boolean()) :: Dagger.JSONValue.t()
-  def new_boolean(%__MODULE__{} = json_value, value) do
+  def new_boolean(%__MODULE__{} = json_value, value) when is_boolean(value) do
     query_builder =
       json_value.query_builder |> QB.select("newBoolean") |> QB.put_arg("value", value)
 
@@ -140,7 +140,7 @@ defmodule Dagger.JSONValue do
   Encode an integer to json
   """
   @spec new_integer(t(), integer()) :: Dagger.JSONValue.t()
-  def new_integer(%__MODULE__{} = json_value, value) do
+  def new_integer(%__MODULE__{} = json_value, value) when is_integer(value) do
     query_builder =
       json_value.query_builder |> QB.select("newInteger") |> QB.put_arg("value", value)
 
@@ -154,7 +154,7 @@ defmodule Dagger.JSONValue do
   Encode a string to json
   """
   @spec new_string(t(), String.t()) :: Dagger.JSONValue.t()
-  def new_string(%__MODULE__{} = json_value, value) do
+  def new_string(%__MODULE__{} = json_value, value) when is_binary(value) do
     query_builder =
       json_value.query_builder |> QB.select("newString") |> QB.put_arg("value", value)
 
@@ -168,7 +168,7 @@ defmodule Dagger.JSONValue do
   Return a new json value, decoded from the given content
   """
   @spec with_contents(t(), Dagger.JSON.t()) :: Dagger.JSONValue.t()
-  def with_contents(%__MODULE__{} = json_value, contents) do
+  def with_contents(%__MODULE__{} = json_value, contents) when is_binary(contents) do
     query_builder =
       json_value.query_builder |> QB.select("withContents") |> QB.put_arg("contents", contents)
 
@@ -182,7 +182,8 @@ defmodule Dagger.JSONValue do
   Set a new field at the given path
   """
   @spec with_field(t(), [String.t()], Dagger.JSONValue.t()) :: Dagger.JSONValue.t()
-  def with_field(%__MODULE__{} = json_value, path, value) do
+  def with_field(%__MODULE__{} = json_value, path, value)
+      when is_list(path) and is_struct(value, Dagger.JSONValue) do
     query_builder =
       json_value.query_builder
       |> QB.select("withField")

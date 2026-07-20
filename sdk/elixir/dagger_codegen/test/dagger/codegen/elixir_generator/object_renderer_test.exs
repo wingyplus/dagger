@@ -139,7 +139,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
         Create a code generation result, given a directory containing the generated code.
         \"""
         @spec generated_code(t(), Dagger.Directory.t()) :: Dagger.GeneratedCode.t()
-        def generated_code(%__MODULE__{} = client, code) do
+        def generated_code(%__MODULE__{} = client, code) when is_struct(code, Dagger.Directory) do
           query_builder =
             client.query_builder
             |> QB.select("generatedCode")
@@ -223,7 +223,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
         Set the return value of the function call to the provided value.
         \"""
         @spec return_value(t(), Dagger.JSON.t()) :: :ok | {:error, term()}
-        def return_value(%__MODULE__{} = function_call, value) do
+        def return_value(%__MODULE__{} = function_call, value) when is_binary(value) do
           query_builder =
             function_call.query_builder |> QB.select("returnValue") |> QB.put_arg("value", value)
 
@@ -333,7 +333,8 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
                 {:gitignore, boolean() | nil},
                 {:owner, String.t() | nil}
               ]) :: Dagger.Directory.t()
-        def with_directory(%__MODULE__{} = directory, path, source, optional_args \\\\ []) do
+        def with_directory(%__MODULE__{} = directory, path, source, optional_args \\\\ [])
+            when is_binary(path) and is_struct(source, Dagger.Directory) do
           query_builder =
             directory.query_builder
             |> QB.select("withDirectory")
@@ -600,7 +601,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
         Retrieves the module with the given description
         \"""
         @spec with_description(t(), String.t()) :: Dagger.Module.t()
-        def with_description(%__MODULE__{} = module, description) do
+        def with_description(%__MODULE__{} = module, description) when is_binary(description) do
           query_builder =
             module.query_builder
             |> QB.select("withDescription")
@@ -616,7 +617,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
         This module plus the given Enum type and associated values
         \"""
         @spec with_enum(t(), Dagger.TypeDef.t()) :: Dagger.Module.t()
-        def with_enum(%__MODULE__{} = module, enum) do
+        def with_enum(%__MODULE__{} = module, enum) when is_struct(enum, Dagger.TypeDef) do
           query_builder =
             module.query_builder |> QB.select("withEnum") |> QB.put_arg("enum", Dagger.ID.id!(enum))
 
@@ -630,7 +631,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
         This module plus the given Interface type and associated functions
         \"""
         @spec with_interface(t(), Dagger.TypeDef.t()) :: Dagger.Module.t()
-        def with_interface(%__MODULE__{} = module, iface) do
+        def with_interface(%__MODULE__{} = module, iface) when is_struct(iface, Dagger.TypeDef) do
           query_builder =
             module.query_builder
             |> QB.select("withInterface")
@@ -646,7 +647,7 @@ defmodule Dagger.Codegen.ElixirGenerator.ObjectRendererTest do
         This module plus the given Object type and associated functions.
         \"""
         @spec with_object(t(), Dagger.TypeDef.t()) :: Dagger.Module.t()
-        def with_object(%__MODULE__{} = module, object) do
+        def with_object(%__MODULE__{} = module, object) when is_struct(object, Dagger.TypeDef) do
           query_builder =
             module.query_builder
             |> QB.select("withObject")

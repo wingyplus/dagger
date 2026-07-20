@@ -135,7 +135,8 @@ defmodule Dagger.Function do
           {:deprecated, String.t() | nil},
           {:default_address, String.t() | nil}
         ]) :: Dagger.Function.t()
-  def with_arg(%__MODULE__{} = function, name, type_def, optional_args \\ []) do
+  def with_arg(%__MODULE__{} = function, name, type_def, optional_args \\ [])
+      when is_binary(name) and is_struct(type_def, Dagger.TypeDef) do
     query_builder =
       function.query_builder
       |> QB.select("withArg")
@@ -163,7 +164,8 @@ defmodule Dagger.Function do
   """
   @spec with_cache_policy(t(), Dagger.FunctionCachePolicy.t(), [{:time_to_live, String.t() | nil}]) ::
           Dagger.Function.t()
-  def with_cache_policy(%__MODULE__{} = function, policy, optional_args \\ []) do
+  def with_cache_policy(%__MODULE__{} = function, policy, optional_args \\ [])
+      when is_atom(policy) do
     query_builder =
       function.query_builder
       |> QB.select("withCachePolicy")
@@ -210,7 +212,7 @@ defmodule Dagger.Function do
   Returns the function with the given doc string.
   """
   @spec with_description(t(), String.t()) :: Dagger.Function.t()
-  def with_description(%__MODULE__{} = function, description) do
+  def with_description(%__MODULE__{} = function, description) when is_binary(description) do
     query_builder =
       function.query_builder
       |> QB.select("withDescription")
@@ -240,7 +242,8 @@ defmodule Dagger.Function do
   Returns the function with the given source map.
   """
   @spec with_source_map(t(), Dagger.SourceMap.t()) :: Dagger.Function.t()
-  def with_source_map(%__MODULE__{} = function, source_map) do
+  def with_source_map(%__MODULE__{} = function, source_map)
+      when is_struct(source_map, Dagger.SourceMap) do
     query_builder =
       function.query_builder
       |> QB.select("withSourceMap")

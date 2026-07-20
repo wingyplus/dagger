@@ -83,7 +83,7 @@ defmodule Dagger.Directory do
   The difference is encoded as a changeset, which also tracks removed files, and can be applied to other directories.
   """
   @spec changes(t(), Dagger.Directory.t()) :: Dagger.Changeset.t()
-  def changes(%__MODULE__{} = directory, from) do
+  def changes(%__MODULE__{} = directory, from) when is_struct(from, Dagger.Directory) do
     query_builder =
       directory.query_builder |> QB.select("changes") |> QB.put_arg("from", Dagger.ID.id!(from))
 
@@ -97,7 +97,7 @@ defmodule Dagger.Directory do
   Change the owner of the directory contents recursively.
   """
   @spec chown(t(), String.t(), String.t()) :: Dagger.Directory.t()
-  def chown(%__MODULE__{} = directory, path, owner) do
+  def chown(%__MODULE__{} = directory, path, owner) when is_binary(path) and is_binary(owner) do
     query_builder =
       directory.query_builder
       |> QB.select("chown")
@@ -114,7 +114,7 @@ defmodule Dagger.Directory do
   Return the difference between this directory and an another directory. The difference is encoded as a directory.
   """
   @spec diff(t(), Dagger.Directory.t()) :: Dagger.Directory.t()
-  def diff(%__MODULE__{} = directory, other) do
+  def diff(%__MODULE__{} = directory, other) when is_struct(other, Dagger.Directory) do
     query_builder =
       directory.query_builder |> QB.select("diff") |> QB.put_arg("other", Dagger.ID.id!(other))
 
@@ -139,7 +139,7 @@ defmodule Dagger.Directory do
   Retrieves a directory at the given path.
   """
   @spec directory(t(), String.t()) :: Dagger.Directory.t()
-  def directory(%__MODULE__{} = directory, path) do
+  def directory(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("directory") |> QB.put_arg("path", path)
 
@@ -208,7 +208,7 @@ defmodule Dagger.Directory do
           {:expected_type, Dagger.ExistsType.t() | nil},
           {:do_not_follow_symlinks, boolean() | nil}
         ]) :: {:ok, boolean()} | {:error, term()}
-  def exists(%__MODULE__{} = directory, path, optional_args \\ []) do
+  def exists(%__MODULE__{} = directory, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("exists")
@@ -224,7 +224,7 @@ defmodule Dagger.Directory do
   """
   @spec export(t(), String.t(), [{:wipe, boolean() | nil}]) ::
           {:ok, String.t()} | {:error, term()}
-  def export(%__MODULE__{} = directory, path, optional_args \\ []) do
+  def export(%__MODULE__{} = directory, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("export")
@@ -238,7 +238,7 @@ defmodule Dagger.Directory do
   Retrieve a file at the given path.
   """
   @spec file(t(), String.t()) :: Dagger.File.t()
-  def file(%__MODULE__{} = directory, path) do
+  def file(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("file") |> QB.put_arg("path", path)
 
@@ -274,7 +274,7 @@ defmodule Dagger.Directory do
   Search up the directory tree for a file or directory, and return its path. If no match, return null
   """
   @spec find_up(t(), String.t(), String.t()) :: {:ok, String.t() | nil} | {:error, term()}
-  def find_up(%__MODULE__{} = directory, name, start) do
+  def find_up(%__MODULE__{} = directory, name, start) when is_binary(name) and is_binary(start) do
     query_builder =
       directory.query_builder
       |> QB.select("findUp")
@@ -288,7 +288,7 @@ defmodule Dagger.Directory do
   Returns a list of files and directories that matche the given pattern.
   """
   @spec glob(t(), String.t()) :: {:ok, [String.t()]} | {:error, term()}
-  def glob(%__MODULE__{} = directory, pattern) do
+  def glob(%__MODULE__{} = directory, pattern) when is_binary(pattern) do
     query_builder =
       directory.query_builder |> QB.select("glob") |> QB.put_arg("pattern", pattern)
 
@@ -334,7 +334,7 @@ defmodule Dagger.Directory do
           {:files_only, boolean() | nil},
           {:limit, integer() | nil}
         ]) :: {:ok, [Dagger.SearchResult.t()]} | {:error, term()}
-  def search(%__MODULE__{} = directory, pattern, optional_args \\ []) do
+  def search(%__MODULE__{} = directory, pattern, optional_args \\ []) when is_binary(pattern) do
     query_builder =
       directory.query_builder
       |> QB.select("search")
@@ -371,7 +371,7 @@ defmodule Dagger.Directory do
   """
   @spec stat(t(), String.t(), [{:do_not_follow_symlinks, boolean() | nil}]) ::
           Dagger.Stat.t() | nil
-  def stat(%__MODULE__{} = directory, path, optional_args \\ []) do
+  def stat(%__MODULE__{} = directory, path, optional_args \\ []) when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("stat")
@@ -439,7 +439,8 @@ defmodule Dagger.Directory do
   Return a directory with changes from another directory applied to it.
   """
   @spec with_changes(t(), Dagger.Changeset.t()) :: Dagger.Directory.t()
-  def with_changes(%__MODULE__{} = directory, changes) do
+  def with_changes(%__MODULE__{} = directory, changes)
+      when is_struct(changes, Dagger.Changeset) do
     query_builder =
       directory.query_builder
       |> QB.select("withChanges")
@@ -461,7 +462,8 @@ defmodule Dagger.Directory do
           {:owner, String.t() | nil},
           {:permissions, integer() | nil}
         ]) :: Dagger.Directory.t()
-  def with_directory(%__MODULE__{} = directory, path, source, optional_args \\ []) do
+  def with_directory(%__MODULE__{} = directory, path, source, optional_args \\ [])
+      when is_binary(path) and is_struct(source, Dagger.Directory) do
     query_builder =
       directory.query_builder
       |> QB.select("withDirectory")
@@ -483,7 +485,7 @@ defmodule Dagger.Directory do
   Raise an error.
   """
   @spec with_error(t(), String.t()) :: Dagger.Directory.t()
-  def with_error(%__MODULE__{} = directory, err) do
+  def with_error(%__MODULE__{} = directory, err) when is_binary(err) do
     query_builder =
       directory.query_builder |> QB.select("withError") |> QB.put_arg("err", err)
 
@@ -500,7 +502,8 @@ defmodule Dagger.Directory do
           {:permissions, integer() | nil},
           {:owner, String.t() | nil}
         ]) :: Dagger.Directory.t()
-  def with_file(%__MODULE__{} = directory, path, source, optional_args \\ []) do
+  def with_file(%__MODULE__{} = directory, path, source, optional_args \\ [])
+      when is_binary(path) and is_struct(source, Dagger.File) do
     query_builder =
       directory.query_builder
       |> QB.select("withFile")
@@ -520,7 +523,8 @@ defmodule Dagger.Directory do
   """
   @spec with_files(t(), String.t(), [String.t()], [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_files(%__MODULE__{} = directory, path, sources, optional_args \\ []) do
+  def with_files(%__MODULE__{} = directory, path, sources, optional_args \\ [])
+      when is_binary(path) and is_list(sources) do
     query_builder =
       directory.query_builder
       |> QB.select("withFiles")
@@ -539,7 +543,8 @@ defmodule Dagger.Directory do
   """
   @spec with_new_directory(t(), String.t(), [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_new_directory(%__MODULE__{} = directory, path, optional_args \\ []) do
+  def with_new_directory(%__MODULE__{} = directory, path, optional_args \\ [])
+      when is_binary(path) do
     query_builder =
       directory.query_builder
       |> QB.select("withNewDirectory")
@@ -557,7 +562,8 @@ defmodule Dagger.Directory do
   """
   @spec with_new_file(t(), String.t(), String.t(), [{:permissions, integer() | nil}]) ::
           Dagger.Directory.t()
-  def with_new_file(%__MODULE__{} = directory, path, contents, optional_args \\ []) do
+  def with_new_file(%__MODULE__{} = directory, path, contents, optional_args \\ [])
+      when is_binary(path) and is_binary(contents) do
     query_builder =
       directory.query_builder
       |> QB.select("withNewFile")
@@ -579,7 +585,7 @@ defmodule Dagger.Directory do
   > "This API is highly experimental and may be removed or replaced entirely."
   """
   @spec with_patch(t(), String.t()) :: Dagger.Directory.t()
-  def with_patch(%__MODULE__{} = directory, patch) do
+  def with_patch(%__MODULE__{} = directory, patch) when is_binary(patch) do
     query_builder =
       directory.query_builder |> QB.select("withPatch") |> QB.put_arg("patch", patch)
 
@@ -597,7 +603,7 @@ defmodule Dagger.Directory do
   > "This API is highly experimental and may be removed or replaced entirely."
   """
   @spec with_patch_file(t(), Dagger.File.t()) :: Dagger.Directory.t()
-  def with_patch_file(%__MODULE__{} = directory, patch) do
+  def with_patch_file(%__MODULE__{} = directory, patch) when is_struct(patch, Dagger.File) do
     query_builder =
       directory.query_builder
       |> QB.select("withPatchFile")
@@ -613,7 +619,8 @@ defmodule Dagger.Directory do
   Return a snapshot with a symlink
   """
   @spec with_symlink(t(), String.t(), String.t()) :: Dagger.Directory.t()
-  def with_symlink(%__MODULE__{} = directory, target, link_name) do
+  def with_symlink(%__MODULE__{} = directory, target, link_name)
+      when is_binary(target) and is_binary(link_name) do
     query_builder =
       directory.query_builder
       |> QB.select("withSymlink")
@@ -630,7 +637,7 @@ defmodule Dagger.Directory do
   Retrieves this directory with all file/dir timestamps set to the given time.
   """
   @spec with_timestamps(t(), integer()) :: Dagger.Directory.t()
-  def with_timestamps(%__MODULE__{} = directory, timestamp) do
+  def with_timestamps(%__MODULE__{} = directory, timestamp) when is_integer(timestamp) do
     query_builder =
       directory.query_builder |> QB.select("withTimestamps") |> QB.put_arg("timestamp", timestamp)
 
@@ -644,7 +651,7 @@ defmodule Dagger.Directory do
   Return a snapshot with a subdirectory removed
   """
   @spec without_directory(t(), String.t()) :: Dagger.Directory.t()
-  def without_directory(%__MODULE__{} = directory, path) do
+  def without_directory(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("withoutDirectory") |> QB.put_arg("path", path)
 
@@ -658,7 +665,7 @@ defmodule Dagger.Directory do
   Return a snapshot with a file removed
   """
   @spec without_file(t(), String.t()) :: Dagger.Directory.t()
-  def without_file(%__MODULE__{} = directory, path) do
+  def without_file(%__MODULE__{} = directory, path) when is_binary(path) do
     query_builder =
       directory.query_builder |> QB.select("withoutFile") |> QB.put_arg("path", path)
 
@@ -672,7 +679,7 @@ defmodule Dagger.Directory do
   Return a snapshot with files removed
   """
   @spec without_files(t(), [String.t()]) :: Dagger.Directory.t()
-  def without_files(%__MODULE__{} = directory, paths) do
+  def without_files(%__MODULE__{} = directory, paths) when is_list(paths) do
     query_builder =
       directory.query_builder |> QB.select("withoutFiles") |> QB.put_arg("paths", paths)
 
